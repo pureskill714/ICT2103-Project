@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<<<<<<< Updated upstream
 <html>
 
 <head>
@@ -69,12 +70,57 @@
     .button:hover {
       background: #2CC06B;
     }
+=======
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="static/css/style.css" />
+    <title>Blood Bank</title>
+  </head>
+  <body>
+
+  <div class="container">
+      <div class="row">
+
+          <div class="col-md-12 text-center mt-5">
+               <img src="static/img/icon8-blood.png" alt="logo"/>
+               <h1>Blood Bank Management System</h1>
+          </div>
+
+          <div class="col-md-12 text-center">
+              <form method="POST" action="">
+                  {{form.hidden_tag() }} <!-- generates a hidden field used to protect against CSRF attacks-->
+                  <div class="l-form">
+                  <h1>User Login</h1>
+                      {{form.username(class="text-field")}}
+                      {{form.password(class="text-field")}}
+                  <button class="l-button">Log In</button>
+                  </div>
+              </form>
+          </div>
+
+      </div>
+  </div>
+ <!-- Flash error message if username or password incorrect -->
+            {% with messages = get_flashed_messages() %}
+           {% if messages %}
+              {% for message in messages %}
+                 {{ message }}
+              {% endfor %}
+           {% endif %}
+        {% endwith %}
+>>>>>>> Stashed changes
 
     .fpwd {
       color: #f1c40f;
       text-decoration: underline;
     }
 
+<<<<<<< Updated upstream
     #absoluteCenteredDiv {
       position: absolute;
       top: 0;
@@ -124,3 +170,13 @@
     {% endif %}
     {% endwith %}
   </div>
+=======
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+
+  </body>
+</html>
+>>>>>>> Stashed changes

@@ -1,43 +1,61 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<style>
-.button {
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-}
+  <style>
+    .button {
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
 
-.button1 {background-color: #4CAF50;} /* Green */
-.button2 {background-color: #008CBA;} /* Blue */
-.button3 {background-color: #8B8000;} /* Yellow */
-.button4 {background-color: #8B0000;} /* Red */
+    .button1 {
+      background-color: #4CAF50;
+    }
 
-</style>
+    /* Green */
+    .button2 {
+      background-color: #008CBA;
+    }
+
+    /* Blue */
+    .button3 {
+      background-color: #8B8000;
+    }
+
+    /* Yellow */
+    .button4 {
+      background-color: #8B0000;
+    }
+
+    /* Red */
+  </style>
 </head>
+
 <body style="background-color:powderblue;">
 
-<h1>Welcome to the Staff dashboard</h1>
-<p>Here you can perform activities to manage the blood bank</p>
+  <h1>Welcome to the Staff dashboard</h1>
+  <p>Here you can perform activities to manage the blood bank</p>
 
-<button class="button button1">Register A New Donor</button>
+  <button class="button button1">Register A New Donor</button>
 
-<button class="button button3">Update Donor Details</button>
+  <button class="button button3">Update Donor Details</button>
 
-<button class="button button4">Delete Donor</button>
+  <button class="button button4">Delete Donor</button>
 
-<button class="button button2">View All Donor Details</button>
+  <button class="button button2">View All Donor Details</button>
 
-<button class="button button1">Register New Donation Event</button>
+  <button class="button button1">Register New Donation Event</button>
 
-<br><br>
-<a href= "{{url_for('logout')}}">Press here to logout</a><br>
+  <br><br>
+  <a href="{{url_for('logout')}}">Press here to logout</a><br>
 
 </body>
+
 </html>

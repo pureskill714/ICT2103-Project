@@ -124,8 +124,7 @@ p{
 /* showcase */
 
 #showcase{
-    background-image: url('../img/showcase.jpg'); no-repeat 
-    center center/cover;
+    background-image: url('../img/showcase.jpg');
     height: 1050px;
     
 }
@@ -226,7 +225,7 @@ p{
     opacity: 0.85;
 }
 #contact-form .form-group{
-    mairgin-bottom:20px;
+    margin-bottom:20px;
 }
 #contact-form label{
     display:block;

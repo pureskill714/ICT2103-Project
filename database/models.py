@@ -1,5 +1,19 @@
 from datetime import date, datetime
 
+from flask_login import UserMixin
+
+# Inheriting from UserMixin required for flask login
+class User(UserMixin):
+    def __init__(self, id, username, password, name, branchId):
+        self.id = id
+        self.username = username
+        self.password = password
+        self.name = name
+        self.branchId = branchId
+
+    @staticmethod
+    def fromTuple(data):
+        return User(*data) # Unpack tuple
 
 class Donor:
     def __init__(self, nric: str, name: str, dateOfBirth: date, mobile: str, bloodTypeId: int, registrationDate: datetime):

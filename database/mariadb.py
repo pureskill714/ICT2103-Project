@@ -9,7 +9,7 @@ TABLE_BLOODTYPE = 'BloodType'
 TABLE_BLOODDONATION = 'BloodDonation'
 TABLE_LABTEST = 'LabTest'
 TABLE_BLOODREQUEST = 'BloodRequest'
-TABLE_USERS = 'User'
+TABLE_USER = 'User'
 
 class MariaDBBackend:
     def __init__(self):
@@ -41,6 +41,11 @@ class MariaDBBackend:
 
     def commit(self):
         self._connection.commit()
+
+    def getUser(self, username):
+        '''Query user by username'''
+        self._cursor.execute(f'SELECT * FROM {TABLE_USER} WHERE username=?', (username,))
+        return self._cursor.fetchone()
 
     def getDonors(self):
         '''Query list of all donors'''

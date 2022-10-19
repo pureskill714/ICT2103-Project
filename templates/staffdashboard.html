@@ -1,61 +1,44 @@
 <!DOCTYPE html>
-<html>
-
-<head>
-  <style>
-    .button {
-      border: none;
-      color: white;
-      padding: 15px 32px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-      margin: 4px 2px;
-      cursor: pointer;
-    }
-
-    .button1 {
-      background-color: #4CAF50;
-    }
-
-    /* Green */
-    .button2 {
-      background-color: #008CBA;
-    }
-
-    /* Blue */
-    .button3 {
-      background-color: #8B8000;
-    }
-
-    /* Yellow */
-    .button4 {
-      background-color: #8B0000;
-    }
-
-    /* Red */
-  </style>
-</head>
-
-<body style="background-color:powderblue;">
-
-  <h1>Welcome to the Staff dashboard</h1>
-  <p>Here you can perform activities to manage the blood bank</p>
-
-  <button class="button button1">Register A New Donor</button>
-
-  <button class="button button3">Update Donor Details</button>
-
-  <button class="button button4">Delete Donor</button>
-
-  <button class="button button2">View All Donor Details</button>
-
-  <button class="button button1">Register New Donation Event</button>
-
-  <br><br>
-  <a href="{{url_for('logout')}}">Press here to logout</a><br>
-
-</body>
-
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" />
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <title>Side Bar</title>
+  </head>
+  <body>
+    <div class="wrapper">	
+      <nav class="sidebar">	
+        <div class="sidebar-header text-center">	
+          <img src="/static/img/icons8-drop-of-blood-100.png" alt="icon">	
+          <h3>Blood Bank</h3>
+          <hr>	
+        </div>	
+        <ul class="list-unstyled components">	
+          <li><a href="#"><i class="fas fa-home"></i> Home</a></li>	
+          <li><a href="#"><i class="fas fa-user-plus"></i> Add Donor</a></li>	
+          <li><a href="#"><i class="fas fa-pen"></i> Update Donor</a></li>	
+          <li><a href="#"><i class="fas fa-user-minus"></i> Delete Donor</a></li>	
+          <li><a href="#"><i class="fas fa-eye"></i> View Donor</a></li>
+          <li><a href="#"><i class="fas fa-plus"></i> New Donation Event</a></li>
+        </ul>	
+        <ul class="list-unstyled CTAs">	
+          <li><a href="{{url_for('logout')}}" class="l-btn">Logout</a></li>	
+          
+          </ul>	
+      </nav>	
+  
+    <div class="content">	
+    <div class="content-wrapper"> 
+      <h2>Welcome to Staff Dashboard</h2>   
+    </div>	
+    </div> 
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+  </body>
 </html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	  <style>
+		  #navbar{
+    background:#333;
+    color:#fff;
+    overflow:auto;
+}
+
+#navbar a{
+    color:#fff
+}
+
+#navbar h1{
+    float:left;
+    padding-top:20px;
+}
+
+#navbar ul{
+    list-style:none;
+    float:right;
+}
+
+#navbar ul li {
+ float:left;
+}
+
+#navbar ul li a{
+    display:block;
+    padding:20px;
+    text-align: center;
+}
+
+#navbar ul li a:hover,
+ #navbar ul li a.current{
+    background:#444;
+    color:#f7c08a;
+}
+	  </style>
+    <title></title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <h1
+      class="text-green text-center font-weight-bold"
+      style="font-size: 40px;"
+    >
+      Register A New Donor
+    </h1>
+
+
+  <center>
+  {% with messages = get_flashed_messages() %}
+           {% if messages %}
+              {% for message in messages %}
+                 {{ message }}
+              {% endfor %}
+           {% endif %}
+        {% endwith %}
+  </center>
+
+    <div class="container">
+      <br />
+		<!-- Inputting NRIC -->
+      <div class="col-lg-5 m-auto d-block">
+        <form method="POST" action="">
+            {{form.hidden_tag() }}
+          <div class="form-group">
+            <label for="name" class="font-weight-regular"> NRIC </label><br>
+            {{form.nric}}
+            <span id="Name" class="text-danger font-weight-regular"> </span>
+          </div>
+			<!-- Inputting name -->
+			 <div class="form-group">
+            <label for="name" class="font-weight-regular"> Name </label><br>
+            {{form.name}}
+            <span id="Name" class="text-danger font-weight-regular"> </span>
+          </div>
+
+			<!-- Inputting date of birth -->
+          <div class="form-group">
+            <label class="font-weight-regular"> Date Of Birth </label><br>
+            {{form.dateofbirth}}
+            <span id="emailids" class="text-danger font-weight-regular"> </span>
+          </div>
+
+			<!-- Inputting username -->
+          <div class="form-group">
+            <label for="user" class="font-weight-regular"> Blood Type </label><br>
+            {{form.bloodtype}}
+            <span id="username" class="text-danger font-weight-regular"> </span>
+          </div>
+
+			<!-- Inputting password -->
+          <div class="form-group">
+            <label class="font-weight-regular"> Contact Number </label><br>
+            {{form.contact}}
+            <span id="passwords" class="text-danger font-weight-regular">
+            </span>
+          </div>
+
+          <!-- Submit button -->
+         {{form.submit}}
+          <input
+            type="reset"
+            name="reset"
+            value="Reset"
+            class="btn btn-secondary"
+            autocomplete="off"
+          />
+
+        </form>
+        <a href="{{url_for('staffdashboard')}}">return to the dashboard page</a>
+    </center>
+
+        <br /><br />
+      </div>
+    </div>
+  </body>
+</html>

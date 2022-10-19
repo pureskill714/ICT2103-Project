@@ -1,0 +1,9 @@
+<h1>Update Donor Details</h1>
+<form action="{{url_for('donorUpdateSubmit',nric_no=donor.nric)}}" method = "POST">
+  <p>name <input name="name" type = "text" name = "name"  value="{{donor.name}}"/></p>
+  <p>Date Of Birth <input name="dob" email="dob" type = "text" dob = "dob" value="{{donor.dob}}"/></p>
+  <p>Blood Type <input name="bloodtype" type = "text" contact = "bloodtype" value="{{donor.bloodtype}}"/></p>
+    <p>contact <input name="contact" type = "integer" contact = "contact" value="{{donor.contactno}}"/></p>
+  <p>Updating details for employee no. {{donor.nric}}</p>
+  <p><input type = "submit" value = "Submit" /></p>
+</form>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>table</title>
+    <style>
+        table{
+            border-collapse: collapse;
+            width: 100%;
+        }
+    th,td{
+        border: 2px solid green;
+        padding: 15px;
+    }
+
+    </style>
+  </head>
+
+<body>
+<center>
+<h1>Donors Table</h1>
+</center>
+  <table>
+    <tr>
+        <th>NRIC</th>
+        <th>Name</th>
+        <th>Date Of Birth</th>
+        <th>Blood Type</th>
+        <th>Contact No.</th>
+        <th>Registered Date</th>
+        <th>Registered By</th>
+    </tr>
+    <tr>
+        {% for donor in donors %}
+        <td>{{ donor.nric }}</td>
+        <td>{{ donor.name }}</td>
+        <td>{{ donor.dob }}</td>
+        <td>{{ donor.bloodtype }}</td>
+        <td>{{ donor.contactno }}</td>
+        <td>{{ donor.registerdate }}</td>
+        <td>{{ donor.registerby }}</td>
+    </tr>
+       {% endfor %}
+
+</table>
+<br>
+<a href="{{url_for('staffdashboard')}}">return to the dashboard page</a>
+</body>
+</html>

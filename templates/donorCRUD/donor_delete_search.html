@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Enter the NRIC of the donor you want to delete</h1>
+
+<form action="/donordeletesubmit" method="POST">
+  <label>Employee Number:</label>
+  <input name="nric_no_delete">
+  <input type="submit" value="Submit">
+</form>
+
+<br>
+<a href="{{url_for('staffdashboard')}}">Return to dashboard page</a>
+</body>
+</html>

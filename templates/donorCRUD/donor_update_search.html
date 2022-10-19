@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Enter the NRIC of the donor you want to update</h1>
+
+<form action="/donorupdatevalue" method="POST">
+  <label>Employee Number:</label>
+  <input name="nric_no">
+  <input type="submit" value="Submit">
+</form>
+
+<br>
+<a href="{{url_for('staffdashboard')}}">Click here to return back to the dashboard page</a>
+
+</body>
+</html>

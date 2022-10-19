@@ -26,13 +26,21 @@
 <h1>Welcome to the Staff dashboard</h1>
 <p>Here you can perform activities to manage the blood bank</p>
 
+<a href="{{url_for('register')}}">
 <button class="button button1">Register A New Donor</button>
+</a>
 
+<a href="{{url_for('donorUpdateSearch')}}">
 <button class="button button3">Update Donor Details</button>
+</a>
 
+<a href="{{url_for('donorDeleteSearch')}}">
 <button class="button button4">Delete Donor</button>
+</a>
 
+<a href="{{url_for('donortable')}}">
 <button class="button button2">View All Donor Details</button>
+</a>
 
 <button class="button button1">Register New Donation Event</button>
 

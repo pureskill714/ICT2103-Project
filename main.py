@@ -47,15 +47,13 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        userRow = db.getUserByUsername(form.username.data)
-        if userRow is not None:
-            user = User.fromTuple(userRow)
-            if user.password == form.password.data:
-                url = request.args.get('next')
-                login_user(user)
-                return redirect(url or url_for('home'))
-            else:
-                flash("Username or Password incorrect. Please try again")
+        user = db.getUserByUsername(form.username.data)
+        if user is not None and user.password == form.password.data:
+            url = request.args.get('next')
+            login_user(user)
+            return redirect(url or url_for('home'))
+        else:
+            flash("Username or Password incorrect. Please try again")
     return render_template('login.html', form=form)
 
 @app.route('/donors')

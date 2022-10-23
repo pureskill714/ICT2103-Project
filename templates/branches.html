@@ -10,24 +10,25 @@
         {% include 'nav.html' %}
     </div>
     <div class="flex-grow-1 p-3">
-        <h1>Branches</h1>
-        <table>
-            <tr>
-                <th>Branch ID</th>
-                <th>Branch Name</th>
-                <th>Address</th>
-                <th>Postal Code</th>
-            </tr>
-            <tr>
-                {% for branch in branches %}
-                <td>{{ branch.id }}</td>
-                <td>{{ branch.name }}</td>
-                <td>{{ branch.address }}</td>
-                <td>{{ branch.postalCode }}</td>
-            </tr>
-            {% endfor %}
-
-        </table>
+        <div class="container">
+            <h3>Branches</h3>
+            <table>
+                <tr>
+                    <th>Branch ID</th>
+                    <th>Branch Name</th>
+                    <th>Address</th>
+                    <th>Postal Code</th>
+                </tr>
+                <tr>
+                    {% for branch in branches %}
+                    <td>{{ branch.id }}</td>
+                    <td>{{ branch.name }}</td>
+                    <td>{{ branch.address }}</td>
+                    <td>{{ branch.postalCode }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

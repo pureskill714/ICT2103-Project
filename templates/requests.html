@@ -10,32 +10,33 @@
         {% include 'nav.html' %}
     </div>
     <div class="flex-grow-1 p-3">
-        <h1>Requests</h1>
-        <table>
-            <tr>
-                <th>Request ID</th>
-                <th>Requester</th>
-                <th>Blood Type</th>
-                <th>Quantity</th>
-                <th>Date</th>
-                <th>Address</th>
-                <th>Status</th>
-                <th>Fulfilled</th>
-            </tr>
-            <tr>
-                {% for request in requests %}
-                <td>{{ request.id }}</td>
-                <td>{{ request.requestorUsername }}</td>
-                <td>{{ request.bloodType }}</td>
-                <td>{{ request.quantity }}</td>
-                <td>{{ request.date }}</td>
-                <td>{{ request.address }}</td>
-                <td>{{ request.status }}</td>
-                <td>{{ request.fulfilled }}</td>
-            </tr>
-            {% endfor %}
-
-        </table>
+        <div class="container">
+            <h3>Requests</h3>
+            <table>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Requester</th>
+                    <th>Blood Type</th>
+                    <th>Quantity</th>
+                    <th>Date</th>
+                    <th>Address</th>
+                    <th>Status</th>
+                    <th>Fulfilled</th>
+                </tr>
+                <tr>
+                    {% for request in requests %}
+                    <td>{{ request.id }}</td>
+                    <td>{{ request.requestorUsername }}</td>
+                    <td>{{ request.bloodType }}</td>
+                    <td>{{ request.quantity }}</td>
+                    <td>{{ request.date }}</td>
+                    <td>{{ request.address }}</td>
+                    <td>{{ request.status }}</td>
+                    <td>{{ request.fulfilled }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

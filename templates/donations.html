@@ -10,28 +10,29 @@
         {% include 'nav.html' %}
     </div>
     <div class="flex-grow-1 p-3">
-        <h1>Blood Donations</h1>
-        <table>
-            <tr>
-                <th>Donation ID</th>
-                <th>Donor NRIC</th>
-                <th>Quantity</th>
-                <th>Date No.</th>
-                <th>Branch</th>
-                <th>Recorded By</th>
-            </tr>
-            <tr>
-                {% for donation in donations %}
-                <td>{{ donation.id }}</td>
-                <td>{{ donation.nric }}</td>
-                <td>{{ donation.quantity }}</td>
-                <td>{{ donation.date }}</td>
-                <td>{{ donation.branchName }}</td>
-                <td>{{ donation.staffUsername }}</td>
-            </tr>
-            {% endfor %}
-
-        </table>
+        <div class="container">
+            <h3>Blood Donations</h3>
+            <table>
+                <tr>
+                    <th>Donation ID</th>
+                    <th>Donor NRIC</th>
+                    <th>Quantity</th>
+                    <th>Date No.</th>
+                    <th>Branch</th>
+                    <th>Recorded By</th>
+                </tr>
+                <tr>
+                    {% for donation in donations %}
+                    <td>{{ donation.id }}</td>
+                    <td>{{ donation.nric }}</td>
+                    <td>{{ donation.quantity }}</td>
+                    <td>{{ donation.date }}</td>
+                    <td>{{ donation.branchName }}</td>
+                    <td>{{ donation.staffUsername }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

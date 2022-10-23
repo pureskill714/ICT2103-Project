@@ -2,7 +2,7 @@ import os
 import sys
 
 import mariadb
-from database.models import BloodDonation, Donor, User
+from database.models import BloodDonation, BloodRequest, Branch, Donor, User
 
 TABLE_DONOR = 'Donor'
 TABLE_BLOODTYPE = 'BloodType'
@@ -10,6 +10,7 @@ TABLE_BLOODDONATION = 'BloodDonation'
 TABLE_LABTEST = 'LabTest'
 TABLE_BLOODREQUEST = 'BloodRequest'
 TABLE_USER = 'User'
+TABLE_BRANCH = 'Branch'
 
 class MariaDBBackend:
     def __init__(self):
@@ -60,7 +61,7 @@ class MariaDBBackend:
 
     def getAllDonors(self):
         '''Query list of all donors'''
-        self._cursor.execute(f'SELECT d.nric, d.name, d.dateOfBirth, d.contactNo, d.bloodTypeId, d.registrationDate, bt.type FROM {TABLE_DONOR} d INNER JOIN {TABLE_BLOODTYPE} bt ON d.BloodTypeId=bt.id')
+        self._cursor.execute(f'SELECT d.*, bt.type FROM {TABLE_DONOR} d INNER JOIN {TABLE_BLOODTYPE} bt ON d.BloodTypeId=bt.id')
         return [Donor.fromTuple(d) for d in self._cursor.fetchall()]
 
     def getDonorByNRIC(self, nric: str):
@@ -93,4 +94,19 @@ class MariaDBBackend:
         '''Delete donor by NRIC'''
         statement = f'DELETE FROM {TABLE_DONOR} WHERE nric=?'
         self._cursor.execute(statement, (nric,))
+
+    def getAllBloodDonations(self):
+        '''Query list of all blood donations'''
+        self._cursor.execute(f'SELECT d.*, b.name, u.username FROM {TABLE_BLOODDONATION} d INNER JOIN {TABLE_BRANCH} b ON d.branchId=b.id INNER JOIN {TABLE_USER} u ON d.recordedBy=u.id')
+        return [BloodDonation.fromTuple(bd) for bd in self._cursor.fetchall()]
+
+    def getAllBloodRequests(self):
+        '''Query list of all blood requests'''
+        self._cursor.execute(f'SELECT br.*, u.username, bt.type FROM {TABLE_BLOODREQUEST} br INNER JOIN {TABLE_BLOODTYPE} bt ON br.bloodTypeId=bt.id INNER JOIN {TABLE_USER} u ON br.requesterId=u.id')
+        return [BloodRequest.fromTuple(br) for br in self._cursor.fetchall()]
+
+    def getAllBranches(self):
+        '''Query list of all blood bank branches'''
+        self._cursor.execute(f'SELECT * FROM {TABLE_BRANCH}')
+        return [Branch.fromTuple(br) for br in self._cursor.fetchall()]
     

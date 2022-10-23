@@ -59,8 +59,26 @@ def login():
 @app.route('/donors')
 @login_required
 def donors():
-    donorList = db.getAllDonors()
-    return render_template('donors.html', donors = donorList)
+    donors = db.getAllDonors()
+    return render_template('donors.html', donors = donors)
+
+@app.route('/donations')
+@login_required
+def donations():
+    donations = db.getAllBloodDonations()
+    return render_template('donations.html', donations = donations)
+
+@app.route('/requests')
+@login_required
+def requests():
+    requests = db.getAllBloodRequests()
+    return render_template('requests.html', requests = requests)
+
+@app.route('/branches')
+@login_required
+def branches():
+    branches = db.getAllBranches()
+    return render_template('branches.html', branches = branches)
 
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required

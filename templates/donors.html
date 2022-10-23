@@ -1,19 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>Blood Bank: Donor List</title>
-<style>
-    table {
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    th,
-    td {
-        border: 2px solid green;
-        padding: 15px;
-    }
-</style>
+<title>Blood Bank: Donors</title>
 {% endblock %}
 
 {% block body %}
@@ -21,7 +9,7 @@
     <div>
         {% include 'nav.html' %}
     </div>
-    <div class="flex-grow-1">
+    <div class="flex-grow-1 p-3">
         <h1>Donors</h1>
         <table>
             <tr>

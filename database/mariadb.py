@@ -2,7 +2,7 @@ import os
 import sys
 
 import mariadb
-from database.models import Donor
+from database.models import BloodDonation, Donor, User
 
 TABLE_DONOR = 'Donor'
 TABLE_BLOODTYPE = 'BloodType'
@@ -45,27 +45,36 @@ class MariaDBBackend:
     def getUserById(self, id):
         '''Query user by username'''
         self._cursor.execute(f'SELECT * FROM {TABLE_USER} WHERE id=?', (id,))
-        return self._cursor.fetchone()
+        res = self._cursor.fetchone()
+        if res is None:
+            return None
+        return User.fromTuple(res)
 
     def getUserByUsername(self, username):
         '''Query user by username'''
         self._cursor.execute(f'SELECT * FROM {TABLE_USER} WHERE username=?', (username,))
-        return self._cursor.fetchone()
+        res = self._cursor.fetchone()
+        if res is None:
+            return None
+        return User.fromTuple(res)
 
     def getAllDonors(self):
         '''Query list of all donors'''
-        self._cursor.execute(f'SELECT * FROM {TABLE_DONOR}')
-        return self._cursor.fetchall()
+        self._cursor.execute(f'SELECT d.nric, d.name, d.dateOfBirth, d.contactNo, d.bloodTypeId, d.registrationDate, bt.type FROM {TABLE_DONOR} d INNER JOIN {TABLE_BLOODTYPE} bt ON d.BloodTypeId=bt.id')
+        return [Donor.fromTuple(d) for d in self._cursor.fetchall()]
 
     def getDonorByNRIC(self, nric: str):
         '''Query one donor by NRIC'''
         self._cursor.execute(f'SELECT * FROM {TABLE_DONOR} WHERE nric=?', (nric,))
-        return self._cursor.fetchone()
+        res = self._cursor.fetchone()
+        if res is None:
+            return None
+        return Donor.fromTuple(res)
 
     def getDonorDonations(self, nric: str):
         '''Query one donor's donation records'''
         self._cursor.execute(f'SELECT * FROM {TABLE_BLOODDONATION} WHERE nric=?', (nric,))
-        return self._cursor.fetchall()
+        return [BloodDonation.fromTuple(d) for d in self._cursor.fetchall()]
 
     def insertDonor(self, donor: Donor):
         statement = f'INSERT INTO {TABLE_DONOR} VALUES (?, ?, ?, ?, ?, ?)'
@@ -84,9 +93,4 @@ class MariaDBBackend:
         '''Delete donor by NRIC'''
         statement = f'DELETE FROM {TABLE_DONOR} WHERE nric=?'
         self._cursor.execute(statement, (nric,))
-
-    def getBloodTypeId(self, bloodType: str):
-        '''Query the blood type id for a blood type (e.g. A+/AB-)'''
-        self._cursor.execute(f'SELECT id FROM {TABLE_BLOODTYPE} WHERE bloodType=?', (bloodType,))
-        return self._cursor.fetchone()
     

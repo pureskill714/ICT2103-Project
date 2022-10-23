@@ -16,14 +16,19 @@ class User(UserMixin):
     def fromTuple(data):
         return User(*data) # Unpack tuple
 
-class Donor:
-    def __init__(self, nric: str, name: str, dateOfBirth: date, mobile: str, bloodTypeId: int, registrationDate: datetime):
+class BloodType:
+    def __init__(self, type):
+        self.bloodType = type
+
+class Donor(BloodType):
+    def __init__(self, nric, name, dateOfBirth, contactNo, bloodTypeId, registrationDate, bloodType = None):
         self.nric = nric
         self.name = name
         self.dateOfBirth = dateOfBirth
-        self.contactNo = mobile
+        self.contactNo = contactNo
         self.bloodTypeId = bloodTypeId
         self.registrationDate = registrationDate
+        super().__init__(bloodType)
 
     def toTuple(self):
         return (self.nric, self.name, self.dateOfBirth, self.contactNo, self.bloodTypeId, self.registrationDate)
@@ -31,7 +36,6 @@ class Donor:
     @staticmethod
     def fromTuple(data):
         return Donor(*data) # Unpack tuple
-
 
 class BloodDonation:
     def __init__(self, donationId: int, donorNRIC: str, quantity: float, date: datetime, branchId: int, recordedBy: int):

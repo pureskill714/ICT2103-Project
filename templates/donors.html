@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Blood Bank: Donor List</title>
+<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th,
+    td {
+        border: 2px solid green;
+        padding: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div>
+        <div class="d-flex flex-row">
+            <div>
+                {% include 'nav.html' %}
+            </div>
+            <div class="flex-grow-1">
+                <h1>Donors</h1>
+                <table>
+                    <tr>
+                        <th>NRIC</th>
+                        <th>Name</th>
+                        <th>DOB</th>
+                        <th>Contact No.</th>
+                        <th>Blood Type</th>
+                        <th>Registered Date</th>
+                    </tr>
+                    <tr>
+                        {% for donor in donors %}
+                        <td>{{ donor.nric }}</td>
+                        <td>{{ donor.name }}</td>
+                        <td>{{ donor.dateOfBirth }}</td>
+                        <td>{{ donor.contactNo }}</td>
+                        <td>{{ donor.bloodType }}</td>
+                        <td>{{ donor.registrationDate }}</td>
+                    </tr>
+                    {% endfor %}
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

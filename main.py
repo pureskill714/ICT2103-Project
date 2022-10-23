@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_login import  LoginManager, login_required, login_user, logout_user, current_user
+from flask import Flask, flash, redirect, render_template, request, url_for
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, EmailField, validators
-from wtforms.validators import InputRequired, Length, ValidationError, Email
+from wtforms import PasswordField, StringField, SubmitField
+from wtforms.validators import InputRequired, Length
 
 from database.mariadb import MariaDBBackend
-from database.models import User
+from database.models import Donor, User
 
 # Setup flask
 app = Flask(__name__) # Create an instance of the flask app and put in variable app
@@ -23,8 +23,7 @@ db = MariaDBBackend()
 # This callback is used by flask login to load the user object from the user id stored in the session
 @login_manager.user_loader
 def load_user(user_id):
-    user = db.getUserById(user_id)
-    return None if user is None else User.fromTuple(user)
+    return db.getUserById(user_id)
 
 # The form on the login page
 class LoginForm(FlaskForm):
@@ -58,6 +57,12 @@ def login():
             else:
                 flash("Username or Password incorrect. Please try again")
     return render_template('login.html', form=form)
+
+@app.route('/donors')
+@login_required
+def donors():
+    donorList = db.getAllDonors()
+    return render_template('donors.html', donors = donorList)
 
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required

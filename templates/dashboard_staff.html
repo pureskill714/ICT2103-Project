@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block head %}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div>
+        <div class="d-flex flex-row">
+            <div>
+                {% include 'nav.html' %}
+            </div>
+            <div class="flex-grow-1">
+                <ul>
+                    <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#"><i class="fas fa-user-plus"></i> Add Donor</a></li>
+                    <li><a href="#"><i class="fas fa-pen"></i> Update Donor</a></li>
+                    <li><a href="#"><i class="fas fa-user-minus"></i> Delete Donor</a></li>
+                    <li><a href="#"><i class="fas fa-eye"></i> View Donor</a></li>
+                    <li><a href="#"><i class="fas fa-plus"></i> New Donation Event</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

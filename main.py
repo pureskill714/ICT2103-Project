@@ -8,14 +8,14 @@ from database.mariadb import MariaDBBackend
 from database.models import User
 
 # Setup flask
-app = Flask(__name__, static_url_path='/static') # Create an instance of the flask app and put in variable app
+app = Flask(__name__) # Create an instance of the flask app and put in variable app
 app.config['SECRET_KEY'] = 'thisisasecretkey' # Flask uses secret key to secure session cookies and protect our webform
 
 # Setup flask login
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "login"
-login_manager.login_message = "Login failed. Please try again."
+login_manager.login_view = 'login'
+login_manager.login_message = ''
 
 # Setup database
 db = MariaDBBackend()
@@ -23,7 +23,7 @@ db = MariaDBBackend()
 # This callback is used by flask login to load the user object from the user id stored in the session
 @login_manager.user_loader
 def load_user(user_id):
-    user = db.getUser(user_id)
+    user = db.getUserById(user_id)
     return None if user is None else User.fromTuple(user)
 
 # The form on the login page
@@ -36,27 +36,35 @@ class LoginForm(FlaskForm):
 
     submit = SubmitField("Login")
 
-# App routes help to redirect to different pages of the website
-@app.route("/", methods=['GET', 'POST'])
+@app.route('/')
+@login_required
+def home():
+    return render_template('dashboard_staff.html')
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect('/')
+
     form = LoginForm()
-    # check if the user exists in the database
     if form.validate_on_submit():
-        userRow = db.getUser(form.username.data)
+        userRow = db.getUserByUsername(form.username.data)
         if userRow is not None:
             user = User.fromTuple(userRow)
             if user.password == form.password.data:
+                url = request.args.get('next')
                 login_user(user)
-                return render_template('staffdashboard.html')
-        flash("Username or Password incorrect. Please try again")
+                return redirect(url or url_for('home'))
+            else:
+                flash("Username or Password incorrect. Please try again")
     return render_template('login.html', form=form)
 
-
-@app.route("/logout", methods=['GET', 'POST'])
-@login_required  # ensure is logged then, only then can log out
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
 def logout():
     logout_user()  # log the user out
-    return redirect(url_for('login'))  # redirect user back to login page
+    flash('Logged out')
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)

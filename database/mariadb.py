@@ -42,12 +42,17 @@ class MariaDBBackend:
     def commit(self):
         self._connection.commit()
 
-    def getUser(self, username):
+    def getUserById(self, id):
+        '''Query user by username'''
+        self._cursor.execute(f'SELECT * FROM {TABLE_USER} WHERE id=?', (id,))
+        return self._cursor.fetchone()
+
+    def getUserByUsername(self, username):
         '''Query user by username'''
         self._cursor.execute(f'SELECT * FROM {TABLE_USER} WHERE username=?', (username,))
         return self._cursor.fetchone()
 
-    def getDonors(self):
+    def getAllDonors(self):
         '''Query list of all donors'''
         self._cursor.execute(f'SELECT * FROM {TABLE_DONOR}')
         return self._cursor.fetchall()

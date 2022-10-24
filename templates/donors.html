@@ -9,10 +9,19 @@
     <div>
         {% include 'nav.html' %}
     </div>
-    <div class="flex-grow-1 p-3">
+    <div class="flex-grow-1 py-3 content">
         <div class="container">
             <h3>Donors</h3>
-            <table>
+
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Search by NRIC/Name/Contact Number"
+                    aria-label="Donor search input" aria-describedby="button-addon2">
+                <button class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
+            </div>
+
+            <button type="button" class="btn btn-danger mb-3">Add New Donor</button>
+
+            <table class="table table-hover align-middle">
                 <tr>
                     <th>NRIC</th>
                     <th>Name</th>
@@ -20,15 +29,19 @@
                     <th>Contact No.</th>
                     <th>Blood Type</th>
                     <th>Registered Date</th>
+                    <th>Actions</th>
                 </tr>
+                {% for donor in donors %}
                 <tr>
-                    {% for donor in donors %}
                     <td>{{ donor.nric }}</td>
                     <td>{{ donor.name }}</td>
                     <td>{{ donor.dateOfBirth }}</td>
                     <td>{{ donor.contactNo }}</td>
                     <td>{{ donor.bloodType }}</td>
                     <td>{{ donor.registrationDate }}</td>
+                    <td>
+                        <button type="button" class="btn btn-outline-danger">Show</button>
+                    </td>
                 </tr>
                 {% endfor %}
             </table>

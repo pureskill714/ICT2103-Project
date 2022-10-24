@@ -1,37 +1,42 @@
 <!-- Navbar -->
-<div class="d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 280px;">
+<div class="d-flex flex-column flex-shrink-0 p-3 bg-light h-100" style="max-width: 300px;">
     <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
-        <img class="bi pe-none me-2" width="40" height="32" src="static/img/bloodsymbol.png"/>
+        <img class="bi pe-none me-2" width="40" height="32" src="static/img/bloodsymbol.png" />
         <span class="fs-4">Blood Bank</span>
     </a>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
-            <a href="/" class="nav-link {{ 'active' if url_for(request.endpoint) == '/' else 'link-dark' }}" aria-current="page">
+            <a href="/" class="nav-link {{ 'active' if url_for(request.endpoint) == '/' else 'link-dark' }}"
+                aria-current="page">
                 <i class="bi bi-house-fill me-2"></i>
                 Dashboard
             </a>
         </li>
         <li>
-            <a href="/donors" class="nav-link {{ 'active' if url_for(request.endpoint) == '/donors' else 'link-dark' }}">
+            <a href="/donors"
+                class="nav-link {{ 'active' if url_for(request.endpoint) == '/donors' else 'link-dark' }}">
                 <i class="bi bi-person-circle me-2"></i>
                 Donors
             </a>
         </li>
         <li>
-            <a href="/donations" class="nav-link {{ 'active' if url_for(request.endpoint) == '/donations' else 'link-dark' }}">
+            <a href="/donations"
+                class="nav-link {{ 'active' if url_for(request.endpoint) == '/donations' else 'link-dark' }}">
                 <i class="bi bi-arrow-through-heart-fill me-2"></i>
                 Donations
             </a>
         </li>
         <li>
-            <a href="/requests" class="nav-link {{ 'active' if url_for(request.endpoint) == '/requests' else 'link-dark' }}">
+            <a href="/requests"
+                class="nav-link {{ 'active' if url_for(request.endpoint) == '/requests' else 'link-dark' }}">
                 <i class="bi bi-envelope-fill me-2"></i>
                 Requests
             </a>
         </li>
         <li>
-            <a href="/branches" class="nav-link {{ 'active' if url_for(request.endpoint) == '/branches' else 'link-dark' }}">
+            <a href="/branches"
+                class="nav-link {{ 'active' if url_for(request.endpoint) == '/branches' else 'link-dark' }}">
                 <i class="bi bi-bank2 me-2"></i>
                 Branches
             </a>
@@ -39,6 +44,12 @@
     </ul>
     <hr>
     <div>
+        {% if current_user.is_authenticated %}
+        <p class="text-start"><span class="fw-light">Welcome,<br></span>{{ current_user.username }} ({{ current_user.name }})</p>
+        {% if current_user.branchId %}
+        <p class="text-start"><span class="fw-light">Branch: </span>{{ current_user.branchId }}</p>
+        {% endif %}
+        {% endif %}
         <button type="button" class="btn btn-dark" onclick="location.href='/logout'">Logout</button>
     </div>
 </div>

@@ -3,13 +3,16 @@ body {
     font-family: sans-serif;
 }
 
-table {
-    border-collapse: collapse;
-    width: 100%;
+.content {
+    background-color: rgb(242, 242, 242);
 }
 
-th,
+th {
+    background-color: rgb(220, 53, 69) !important;
+    color: white;
+    border: 1px solid rgb(220, 53, 69) !important;
+}
+
 td {
-    border: 2px solid red !important;
-    padding: 15px;
+    border: 1px solid red !important;
 }

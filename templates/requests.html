@@ -9,12 +9,12 @@
     <div>
         {% include 'nav.html' %}
     </div>
-    <div class="flex-grow-1 p-3">
+    <div class="flex-grow-1 py-3 content">
         <div class="container">
             <h3>Requests</h3>
-            <table>
+            <table class="table table-hover align-middle">
                 <tr>
-                    <th>Request ID</th>
+                    <th>ID</th>
                     <th>Requester</th>
                     <th>Blood Type</th>
                     <th>Quantity</th>
@@ -23,8 +23,8 @@
                     <th>Status</th>
                     <th>Fulfilled</th>
                 </tr>
+                {% for request in requests %}
                 <tr>
-                    {% for request in requests %}
                     <td>{{ request.id }}</td>
                     <td>{{ request.requestorUsername }}</td>
                     <td>{{ request.bloodType }}</td>

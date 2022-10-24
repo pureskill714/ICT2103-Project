@@ -13,14 +13,80 @@
         <div class="container">
             <h3>Donors</h3>
 
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Search by NRIC/Name/Contact Number"
-                    aria-label="Donor search input" aria-describedby="button-addon2">
-                <button class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
+            <!-- Search bar -->
+            <form method="GET" target="_self">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" name="q" placeholder="Search by NRIC/Name"
+                        aria-label="Donor search input" value="{{ request.args.get('q', '') }}">
+                    <button class="btn btn-danger" type="submit">Search</button>
+                </div>
+            </form>
+
+            <!-- Add donor form -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <form method="POST" target="_self">
+                        <div class="row">
+                            <h5>Add new donor</h5>
+                            <div class="col-sm-6">
+                                <label for="nric" class="form-label">NRIC</label>
+                                <input type="text" class="form-control" name="nric" placeholder="Enter NRIC" value=""
+                                    required>
+                                <div class="invalid-feedback">
+                                    Valid NRIC is required.
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" name="name" placeholder="Enter name" value=""
+                                    required>
+                                <div class="invalid-feedback">
+                                    Valid name is required.
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 mb-3">
+                                <label for="dateOfBirth" class="form-label">Date of birth</label>
+                                <input type="date" class="form-control" name="dateOfBirth" value="" required>
+                                <div class="invalid-feedback">
+                                    Valid date of birth is required.
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 mb-3">
+                                <label for="contactNo" class="form-label">Contact No</label>
+                                <input type="text" class="form-control" name="contactNo" placeholder="XXXXXXXX" value=""
+                                    required>
+                                <div class="invalid-feedback">
+                                    Valid contact number is required.
+                                </div>
+                            </div>
+
+                            <div class="col-md-5 mb-3">
+                                <label for="bloodType" class="form-label">Blood Type</label>
+                                <select class="form-select" name="bloodType" required>
+                                  <option value="A+">A+</option>
+                                  <option value="A-">A-</option>
+                                  <option value="B+">B+</option>
+                                  <option value="B-">B-</option>
+                                  <option value="AB+">AB+</option>
+                                  <option value="AB-">AB-</option>
+                                  <option value="O+">O+</option>
+                                  <option value="O-">O-</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                  Please select a blood type.
+                                </div>
+                              </div>
+                        </div>
+                        <button type="submit" class="btn btn-danger">Add</button>
+                    </form>
+                </div>
             </div>
 
-            <button type="button" class="btn btn-danger mb-3">Add New Donor</button>
 
+            <!-- Donor list -->
             <table class="table table-hover align-middle">
                 <tr>
                     <th>NRIC</th>
@@ -32,6 +98,7 @@
                     <th>Actions</th>
                 </tr>
                 {% for donor in donors %}
+                {% if request.args.get('q', '') in donor.nric or request.args.get('q', '') in donor.name %}
                 <tr>
                     <td>{{ donor.nric }}</td>
                     <td>{{ donor.name }}</td>
@@ -43,6 +110,7 @@
                         <button type="button" class="btn btn-outline-danger">Show</button>
                     </td>
                 </tr>
+                {% endif %}
                 {% endfor %}
             </table>
         </div>

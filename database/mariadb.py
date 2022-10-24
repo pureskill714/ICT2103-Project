@@ -109,4 +109,10 @@ class MariaDBBackend:
         '''Query list of all blood bank branches'''
         self._cursor.execute(f'SELECT * FROM {TABLE_BRANCH}')
         return [Branch.fromTuple(br) for br in self._cursor.fetchall()]
+
+    def getBloodTypeId(self, bloodType):
+        '''Query the id of a blood type (e.g. A+)'''
+        self._cursor.execute(f'SELECT id FROM {TABLE_BLOODTYPE} WHERE type=?', (bloodType,))
+        res = self._cursor.fetchone()
+        return res[0] if res is not None else None
     

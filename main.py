@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_wtf import FlaskForm
@@ -5,7 +6,7 @@ from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import InputRequired, Length
 
 from database.mariadb import MariaDBBackend
-from database.models import Donor, User
+from database.models import Donor
 
 # Setup flask
 app = Flask(__name__) # Create an instance of the flask app and put in variable app
@@ -56,9 +57,19 @@ def login():
             flash("Username or Password incorrect. Please try again")
     return render_template('login.html', form=form)
 
-@app.route('/donors')
+@app.route('/donors', methods= ['GET', 'POST'])
 @login_required
 def donors():
+    if request.method == 'POST':
+        nric =  request.form.get('nric')
+        name =  request.form.get('name')
+        dateOfBirth =  request.form.get('dateOfBirth')
+        contactNo =  request.form.get('contactNo')
+        bloodType =  request.form.get('bloodType')
+        bloodTypeId = db.getBloodTypeId(bloodType)
+        newDonor = Donor(nric, name, dateOfBirth, contactNo, bloodTypeId, datetime.now())
+        db.insertDonor(newDonor)
+    
     donors = db.getAllDonors()
     return render_template('donors.html', donors = donors)
 

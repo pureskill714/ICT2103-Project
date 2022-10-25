@@ -87,7 +87,11 @@ class MariaDBBackend:
             print(f"Error inserting new donor: {e}")
 
     def updateDonor(self, donor: Donor):
-        statement = f'UPDATE {TABLE_DONOR} SET name=?, dateOfBirth=?, contactNo=?, bloodTypeId=?, registrationDate=? WHERE nric=?'
+        statement = f'''
+            UPDATE {TABLE_DONOR}
+            SET name=?, dateOfBirth=?, contactNo=?, bloodTypeId=?, registrationDate=?
+            WHERE nric=?
+        '''
         self._cursor.execute(statement, (donor.name, donor.dateOfBirth, donor.contactNo, donor.bloodTypeId, donor.registrationDate, donor.nric))
 
     def deleteDonorByNRIC(self, nric: str):
@@ -113,7 +117,11 @@ class MariaDBBackend:
 
     def getAllBloodRequests(self):
         '''Query list of all blood requests'''
-        self._cursor.execute(f'SELECT br.*, u.username, bt.type FROM {TABLE_BLOODREQUEST} br INNER JOIN {TABLE_BLOODTYPE} bt ON br.bloodTypeId=bt.id INNER JOIN {TABLE_USER} u ON br.requesterId=u.id')
+        self._cursor.execute(f'''
+            SELECT br.*, u.username, bt.type FROM {TABLE_BLOODREQUEST} br
+                INNER JOIN {TABLE_BLOODTYPE} bt ON br.bloodTypeId=bt.id
+                INNER JOIN {TABLE_USER} u ON br.requesterId=u.id
+        ''')
         return [BloodRequest.fromTuple(br) for br in self._cursor.fetchall()]
 
     def getAllBranches(self):
@@ -126,4 +134,17 @@ class MariaDBBackend:
         self._cursor.execute(f'SELECT id FROM {TABLE_BLOODTYPE} WHERE type=?', (bloodType,))
         res = self._cursor.fetchone()
         return res[0] if res is not None else None
+
+    def getDashboardStats(self):
+        '''Query data to show on the dashboard
+        Returns: tuple(donor count, available blood, pending requests)
+        '''
+        self._cursor.execute(f'''
+            SELECT d.*, b.*, r.* FROM
+                (SELECT COUNT(nric) AS donorCount FROM {TABLE_DONOR}) as d,
+                (SELECT SUM(quantity) AS totalBlood FROM {TABLE_BLOODDONATION}) as b,
+                (SELECT COUNT(id) AS pendingCount FROM {TABLE_BLOODREQUEST} WHERE fulfilled=0) as r;
+        ''')
+        res = self._cursor.fetchone()
+        return res
     

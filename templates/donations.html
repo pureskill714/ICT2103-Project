@@ -17,7 +17,7 @@
             <div class="d-flex justify-content-end mb-3">
                 <button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#addDonationForm"
                     aria-expanded="false" aria-controls="addDonationForm">
-                    Add New Donation
+                    <i class="bi bi-plus-lg me-2"></i>Add New Donation
                 </button>
             </div>
 
@@ -75,7 +75,7 @@
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" name="q" placeholder="Search by ID/NRIC"
                         aria-label="Donation search input" value="{{ request.args.get('q', '') }}">
-                    <button class="btn btn-danger" type="submit">Search</button>
+                    <button class="btn btn-danger" type="submit"><i class="bi bi-search me-2"></i>Search</button>
                 </div>
             </form>
 

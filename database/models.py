@@ -86,3 +86,10 @@ class Branch:
     @staticmethod
     def fromTuple(data):
         return Branch(*data) # Unpack tuple
+
+class DashboardData:
+    def __init__(self, donorCount, availableBlood, pendingRequests, bloodInventoryMap):
+        self.donorCount = donorCount
+        self.availableBlood = availableBlood
+        self.pendingRequests = pendingRequests
+        self.bloodInventoryMap = bloodInventoryMap

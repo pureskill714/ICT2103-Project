@@ -17,7 +17,7 @@
                     <div class="card text-bg-info">
                         <div class="card-header">Total Donors</div>
                         <div class="card-body">
-                            <h5 class="card-title">45</h5>
+                            <h5 class="card-title">{{ data.donorCount }}</h5>
                             <p class="card-text"></p>
                         </div>
                     </div>
@@ -26,16 +26,16 @@
                     <div class="card text-bg-danger">
                         <div class="card-header">Available Blood</div>
                         <div class="card-body">
-                            <h5 class="card-title">500</h5>
+                            <h5 class="card-title">{{ data.availableBlood }}</h5>
                             <p class="card-text"></p>
                         </div>
                     </div>
                 </div>
                 <div class="col">
                     <div class="card text-bg-success">
-                        <div class="card-header">Requests</div>
+                        <div class="card-header">Requests (Pending)</div>
                         <div class="card-body">
-                            <h5 class="card-title">7</h5>
+                            <h5 class="card-title">{{ data.pendingRequests }}</h5>
                             <p class="card-text"></p>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
                     <div class="card">
                         <div class="card-header text-danger">A+</div>
                         <div class="card-body">
-                            <h5 class="card-title">10 Units</h5>
+                            <h5 class="card-title">{{ data.bloodInventoryMap['A+'] }} ml</h5>
                             <p class="card-text"></p>
                         </div>
                     </div>
@@ -56,7 +56,7 @@
                     <div class="card">
                         <div class="card-header text-danger">B+</div>
                         <div class="card-body">
-                            <h5 class="card-title">10 Units</h5>
+                            <h5 class="card-title">{{ data.bloodInventoryMap['B+'] }} ml</h5>
                             <p class="card-text"></p>
                         </div>
                     </div>
@@ -65,7 +65,7 @@
                     <div class="card">
                         <div class="card-header text-danger">AB+</div>
                         <div class="card-body">
-                            <h5 class="card-title">10 Units</h5>
+                            <h5 class="card-title">{{ data.bloodInventoryMap['AB+'] }} ml</h5>
                             <p class="card-text"></p>
                         </div>
                     </div>
@@ -74,7 +74,7 @@
                     <div class="card">
                         <div class="card-header text-danger">O+</div>
                         <div class="card-body">
-                            <h5 class="card-title">10 Units</h5>
+                            <h5 class="card-title">{{ data.bloodInventoryMap['O+'] }} ml</h5>
                             <p class="card-text"></p>
                         </div>
                     </div>
@@ -86,7 +86,7 @@
                     <div class="card">
                         <div class="card-header text-danger">A-</div>
                         <div class="card-body">
-                            <h5 class="card-title">10 Units</h5>
+                            <h5 class="card-title">{{ data.bloodInventoryMap['A-'] }} ml</h5>
                             <p class="card-text"></p>
                         </div>
                     </div>
@@ -95,7 +95,7 @@
                     <div class="card">
                         <div class="card-header text-danger">B-</div>
                         <div class="card-body">
-                            <h5 class="card-title">10 Units</h5>
+                            <h5 class="card-title">{{ data.bloodInventoryMap['B-'] }} ml</h5>
                             <p class="card-text"></p>
                         </div>
                     </div>
@@ -104,7 +104,7 @@
                     <div class="card">
                         <div class="card-header text-danger">AB-</div>
                         <div class="card-body">
-                            <h5 class="card-title">10 Units</h5>
+                            <h5 class="card-title">{{ data.bloodInventoryMap['AB-'] }} ml</h5>
                             <p class="card-text"></p>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                     <div class="card">
                         <div class="card-header text-danger">O-</div>
                         <div class="card-body">
-                            <h5 class="card-title">10 Units</h5>
+                            <h5 class="card-title">{{ data.bloodInventoryMap['O-'] }} ml</h5>
                             <p class="card-text"></p>
                         </div>
                     </div>

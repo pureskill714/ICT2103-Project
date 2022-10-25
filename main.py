@@ -6,7 +6,7 @@ from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import InputRequired, Length
 
 from database.mariadb import MariaDBBackend
-from database.models import BloodDonation, Donor
+from database.models import BloodDonation, DashboardData, Donor
 
 # Setup flask
 app = Flask(__name__) # Create an instance of the flask app and put in variable app
@@ -39,7 +39,18 @@ class LoginForm(FlaskForm):
 @app.route('/')
 @login_required
 def home():
-    return render_template('dashboard_staff.html')
+    donorCount, availBlood, requests = db.getDashboardStats()
+    data = DashboardData(donorCount, availBlood, requests, {
+        'A+': availBlood / 2,
+        'A-': availBlood / 4,
+        'B+': availBlood / 4,
+        'B-': availBlood / 16,
+        'AB+': availBlood / 8,
+        'AB-': availBlood / 8,
+        'O+': availBlood / 16,
+        'O-': availBlood / 32
+    })
+    return render_template('dashboard_staff.html', data=data)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -72,7 +83,7 @@ def donors():
         db.commit()
     
     donors = db.getAllDonors()
-    return render_template('donors.html', donors = donors)
+    return render_template('donors.html', donors = donors, today=datetime.now())
 
 @app.route('/donations', methods= ['GET', 'POST'])
 @login_required

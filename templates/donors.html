@@ -17,7 +17,7 @@
             <div class="d-flex justify-content-end mb-3">
                 <button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#addDonorForm"
                     aria-expanded="false" aria-controls="addDonationForm">
-                    Add New Donor
+                    <i class="bi bi-plus-lg me-2"></i>Add New Donor
                 </button>
             </div>
 
@@ -92,38 +92,48 @@
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" name="q" placeholder="Search by NRIC/Name"
                         aria-label="Donor search input" value="{{ request.args.get('q', '') }}">
-                    <button class="btn btn-danger" type="submit">Search</button>
+                    <button class="btn btn-danger" type="submit"><i class="bi bi-search me-2"></i>Search</button>
                 </div>
             </form>
 
-            <!-- Donor list -->
-            <table class="table table-hover align-middle">
-                <tr>
-                    <th>NRIC</th>
-                    <th>Name</th>
-                    <th>DOB</th>
-                    <th>Contact No.</th>
-                    <th>Blood Type</th>
-                    <th>Registered Date</th>
-                    <th>Actions</th>
-                </tr>
-                {% for donor in donors %}
-                {% if request.args.get('q', '') in donor.nric or request.args.get('q', '') in donor.name %}
-                <tr>
-                    <td>{{ donor.nric }}</td>
-                    <td>{{ donor.name }}</td>
-                    <td>{{ donor.dateOfBirth }}</td>
-                    <td>{{ donor.contactNo }}</td>
-                    <td>{{ donor.bloodType }}</td>
-                    <td>{{ donor.registrationDate }}</td>
-                    <td>
-                        <a role="button" class="btn btn-outline-danger"
-                            href="{{ '/donations?q=' + donor.nric }}">Show</a>
-                    </td>
-                </tr>
-                {% endif %}
-                {% endfor %}
-            </table>
+            {% for donor in donors %}
+            {% if request.args.get('q', '') in donor.nric or request.args.get('q', '') in donor.name %}
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    {{ donor.nric }}
+                    <div>
+                        <a href="{{ '/donations?q=' + donor.nric }}" class="btn btn-danger"><i class="bi bi-arrow-through-heart-fill me-2"></i>View Donations</a>
+                        <a href="" class="btn btn-danger"><i class="bi bi-pencil-square me-2"></i>Edit</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-0">
+                        {{ donor.name }}
+                        <span class="badge bg-danger">{{ donor.bloodType }}</span>
+                    </h5>
+                    <div class="card-text">
+                        <span class="badge rounded-pill bg-secondary mb-3">{{ today.year - donor.dateOfBirth.year
+                            }}yo</span>
+                        <div class="d-flex justify-content-center gap-3">
+                            <div class="input-group">
+                                <span class="input-group-text" id="basic-addon1">Contact</span>
+                                <input type="text" class="form-control" value="{{ donor.contactNo }}" readonly />
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text" id="basic-addon1">DOB</span>
+                                <input type="text" class="form-control" value="{{ donor.dateOfBirth }}" readonly />
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text" id="basic-addon1">Registered</span>
+                                <input type="text" class="form-control" value="{{ donor.registrationDate.date() }}"
+                                    readonly />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
         </div>
     </div>
 </div>

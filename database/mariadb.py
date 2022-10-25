@@ -97,8 +97,19 @@ class MariaDBBackend:
 
     def getAllBloodDonations(self):
         '''Query list of all blood donations'''
-        self._cursor.execute(f'SELECT d.*, b.name, u.username FROM {TABLE_BLOODDONATION} d INNER JOIN {TABLE_BRANCH} b ON d.branchId=b.id INNER JOIN {TABLE_USER} u ON d.recordedBy=u.id')
+        statement = f'SELECT d.*, b.name, u.username FROM {TABLE_BLOODDONATION} d INNER JOIN {TABLE_BRANCH} b ON d.branchId=b.id INNER JOIN {TABLE_USER} u ON d.recordedBy=u.id ORDER BY d.date DESC, d.id'
+        self._cursor.execute(statement)
         return [BloodDonation.fromTuple(bd) for bd in self._cursor.fetchall()]
+
+    def insertDonation(self, donation: BloodDonation):
+        statement = f'INSERT INTO {TABLE_BLOODDONATION} VALUES (?, ?, ?, ?, ?, ?)'
+        data = donation.toTuple()
+        assert(len(data) == 6)
+        # data = data[1:] # Omit ID because it's auto generated
+        try:
+            self._cursor.execute(statement, data)
+        except mariadb.Error as e:
+            print(f"Error inserting new donation: {e}")
 
     def getAllBloodRequests(self):
         '''Query list of all blood requests'''

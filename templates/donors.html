@@ -13,6 +13,80 @@
         <div class="container">
             <h3>Donors</h3>
 
+            <!-- Add donor form toggle -->
+            <div class="d-flex justify-content-end mb-3">
+                <button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#addDonorForm"
+                    aria-expanded="false" aria-controls="addDonationForm">
+                    Add New Donor
+                </button>
+            </div>
+
+            <!-- Add donor form -->
+            <div class="collapse" id="addDonorForm">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <form method="POST" target="_self">
+                            <div class="row">
+                                <h5>Add new donor</h5>
+                                <div class="col-sm-6">
+                                    <label for="nric" class="form-label">NRIC</label>
+                                    <input type="text" class="form-control" name="nric" placeholder="Enter NRIC"
+                                        required>
+                                    <div class="invalid-feedback">
+                                        Valid NRIC is required.
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6 mb-3">
+                                    <label for="name" class="form-label">Name</label>
+                                    <input type="text" class="form-control" name="name" placeholder="Enter name"
+                                        required>
+                                    <div class="invalid-feedback">
+                                        Valid name is required.
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6 mb-3">
+                                    <label for="dateOfBirth" class="form-label">Date of birth</label>
+                                    <input type="date" class="form-control" name="dateOfBirth" required>
+                                    <div class="invalid-feedback">
+                                        Valid date of birth is required.
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6 mb-3">
+                                    <label for="contactNo" class="form-label">Contact No</label>
+                                    <input type="text" class="form-control" name="contactNo" placeholder="XXXXXXXX"
+                                        required>
+                                    <div class="invalid-feedback">
+                                        Valid contact number is required.
+                                    </div>
+                                </div>
+
+                                <div class="col-md-5 mb-3">
+                                    <label for="bloodType" class="form-label">Blood Type</label>
+                                    <select class="form-select" name="bloodType" required>
+                                        <option value="">Choose blood type...</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please select a blood type.
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-danger">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <!-- Search bar -->
             <form method="GET" target="_self">
                 <div class="input-group mb-3">
@@ -21,70 +95,6 @@
                     <button class="btn btn-danger" type="submit">Search</button>
                 </div>
             </form>
-
-            <!-- Add donor form -->
-            <div class="card mb-3">
-                <div class="card-body">
-                    <form method="POST" target="_self">
-                        <div class="row">
-                            <h5>Add new donor</h5>
-                            <div class="col-sm-6">
-                                <label for="nric" class="form-label">NRIC</label>
-                                <input type="text" class="form-control" name="nric" placeholder="Enter NRIC" value=""
-                                    required>
-                                <div class="invalid-feedback">
-                                    Valid NRIC is required.
-                                </div>
-                            </div>
-
-                            <div class="col-sm-6 mb-3">
-                                <label for="name" class="form-label">Name</label>
-                                <input type="text" class="form-control" name="name" placeholder="Enter name" value=""
-                                    required>
-                                <div class="invalid-feedback">
-                                    Valid name is required.
-                                </div>
-                            </div>
-
-                            <div class="col-sm-6 mb-3">
-                                <label for="dateOfBirth" class="form-label">Date of birth</label>
-                                <input type="date" class="form-control" name="dateOfBirth" value="" required>
-                                <div class="invalid-feedback">
-                                    Valid date of birth is required.
-                                </div>
-                            </div>
-
-                            <div class="col-sm-6 mb-3">
-                                <label for="contactNo" class="form-label">Contact No</label>
-                                <input type="text" class="form-control" name="contactNo" placeholder="XXXXXXXX" value=""
-                                    required>
-                                <div class="invalid-feedback">
-                                    Valid contact number is required.
-                                </div>
-                            </div>
-
-                            <div class="col-md-5 mb-3">
-                                <label for="bloodType" class="form-label">Blood Type</label>
-                                <select class="form-select" name="bloodType" required>
-                                  <option value="A+">A+</option>
-                                  <option value="A-">A-</option>
-                                  <option value="B+">B+</option>
-                                  <option value="B-">B-</option>
-                                  <option value="AB+">AB+</option>
-                                  <option value="AB-">AB-</option>
-                                  <option value="O+">O+</option>
-                                  <option value="O-">O-</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                  Please select a blood type.
-                                </div>
-                              </div>
-                        </div>
-                        <button type="submit" class="btn btn-danger">Add</button>
-                    </form>
-                </div>
-            </div>
-
 
             <!-- Donor list -->
             <table class="table table-hover align-middle">
@@ -107,7 +117,8 @@
                     <td>{{ donor.bloodType }}</td>
                     <td>{{ donor.registrationDate }}</td>
                     <td>
-                        <button type="button" class="btn btn-outline-danger">Show</button>
+                        <a role="button" class="btn btn-outline-danger"
+                            href="{{ '/donations?q=' + donor.nric }}">Show</a>
                     </td>
                 </tr>
                 {% endif %}

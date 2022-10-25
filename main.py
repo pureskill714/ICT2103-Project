@@ -6,7 +6,7 @@ from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import InputRequired, Length
 
 from database.mariadb import MariaDBBackend
-from database.models import Donor
+from database.models import BloodDonation, Donor
 
 # Setup flask
 app = Flask(__name__) # Create an instance of the flask app and put in variable app
@@ -69,15 +69,26 @@ def donors():
         bloodTypeId = db.getBloodTypeId(bloodType)
         newDonor = Donor(nric, name, dateOfBirth, contactNo, bloodTypeId, datetime.now())
         db.insertDonor(newDonor)
+        db.commit()
     
     donors = db.getAllDonors()
     return render_template('donors.html', donors = donors)
 
-@app.route('/donations')
+@app.route('/donations', methods= ['GET', 'POST'])
 @login_required
 def donations():
+    if request.method == 'POST':
+        nric =  request.form.get('donorNRIC')
+        quantity =  request.form.get('quantity')
+        branchId =  request.form.get('branchId')
+        newDonation = BloodDonation(None, nric, quantity, datetime.now(), branchId, current_user.id)
+        db.insertDonation(newDonation)
+        db.commit()
+
+    donors = db.getAllDonors()
     donations = db.getAllBloodDonations()
-    return render_template('donations.html', donations = donations)
+    branches = db.getAllBranches()
+    return render_template('donations.html', donors = donors, donations = donations, branches = branches)
 
 @app.route('/requests')
 @login_required

@@ -11,31 +11,81 @@
     </div>
     <div class="flex-grow-1 py-3 content">
         <div class="container">
-            <h3>Requests</h3>
-            <table class="table table-hover align-middle">
-                <tr>
-                    <th>ID</th>
-                    <th>Requester</th>
-                    <th>Blood Type</th>
-                    <th>Quantity</th>
-                    <th>Date</th>
-                    <th>Address</th>
-                    <th>Status</th>
-                    <th>Fulfilled</th>
-                </tr>
-                {% for request in requests %}
-                <tr>
-                    <td>{{ request.id }}</td>
-                    <td>{{ request.requestorUsername }}</td>
-                    <td>{{ request.bloodType }}</td>
-                    <td>{{ request.quantity }}</td>
-                    <td>{{ request.date }}</td>
-                    <td>{{ request.address }}</td>
-                    <td>{{ request.status }}</td>
-                    <td>{{ request.fulfilled }}</td>
-                </tr>
-                {% endfor %}
-            </table>
+            <h3>Requests (Pending)</h3>
+            {% for request in requests %}
+            {% if not request.fulfilled %}
+            {% if loop.index % 2 == 1 %}
+            <div class="row row-cols-2 g-2">
+                {% endif %}
+                <div class="col">
+                    <div class="card mb-3">
+                        <div class="row g-0">
+                            <div class="col-3 d-flex justify-content-center align-items-center">
+                                <img src="static/img/icons8-drop-of-blood-100.png" class="img-fluid rounded-start">
+                            </div>
+                            <div class="col-9">
+                                <div class="card-body ps-0">
+                                    <h5 class="card-title">REQUEST #{{ request.id }}</h5>
+                                    <div class="mb-1">
+                                        <span class="badge bg-secondary">{{ request.date }}</span>
+                                        <span class="badge bg-danger">{{ request.bloodType }}</span>
+                                        <span class="badge bg-danger">{{ request.quantity }}ml</span>
+                                    </div>
+                                    <p class="card-text mb-2">
+                                        Requester: {{ request.requestorUsername }}
+                                        <br />
+                                        Address: {{ request.address }}
+                                    </p>
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="#" class="btn btn-danger">Accept</a>
+                                        <a href="#" class="btn btn-outline-danger">Reject</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% if loop.index % 2 == 0 %}
+            </div>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+
+            <h3>Requests (Completed)</h3>
+            {% for request in requests %}
+            {% if request.fulfilled %}
+            {% if loop.index % 2 == 1 %}
+            <div class="row row-cols-2 g-2">
+                {% endif %}
+                <div class="col">
+                    <div class="card mb-3">
+                        <div class="row g-0">
+                            <div class="col-3 d-flex justify-content-center align-items-center">
+                                <img src="static/img/icons8-drop-of-blood-100.png" class="img-fluid rounded-start">
+                            </div>
+                            <div class="col-9">
+                                <div class="card-body ps-0">
+                                    <h5 class="card-title">REQUEST #{{ request.id }}</h5>
+                                    <div class="mb-1">
+                                        <span class="badge bg-secondary">{{ request.date }}</span>
+                                        <span class="badge bg-danger">{{ request.bloodType }}</span>
+                                        <span class="badge bg-danger">{{ request.quantity }}ml</span>
+                                    </div>
+                                    <p class="card-text mb-2">
+                                        Requester: {{ request.requestorUsername }}
+                                        <br />
+                                        Address: {{ request.address }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% if loop.index % 2 == 0 %}
+            </div>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
         </div>
     </div>
 </div>

@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<div class="d-flex flex-column flex-shrink-0 p-3 bg-light h-100" style="width: 280px;">
+<div class="d-flex flex-column flex-shrink-0 px-3 pt-3 bg-light h-100" style="width: 280px;">
     <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
         <img class="bi pe-none me-2" width="40" height="32" src="static/img/bloodsymbol.png" />
         <span class="fs-4">Blood Bank</span>
@@ -42,10 +42,11 @@
             </a>
         </li>
     </ul>
-    <hr>
-    <div>
+    <div class="sticky-bottom pb-3">
+        <hr />
         {% if current_user.is_authenticated %}
-        <p class="text-start"><span class="fw-light">Welcome,<br></span>{{ current_user.username }} ({{ current_user.name }})</p>
+        <p class="text-start"><span class="fw-light">Welcome,<br></span>{{ current_user.username }} ({{
+            current_user.name }})</p>
         {% if current_user.branchId %}
         <p class="text-start"><span class="fw-light">Branch: </span>{{ current_user.branchId }}</p>
         {% endif %}

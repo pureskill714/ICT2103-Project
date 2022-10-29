@@ -6,7 +6,10 @@ from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import InputRequired, Length
 
 from database.mariadb import MariaDBBackend
+from database.firebase import FirebaseBackend
 from database.models import BloodDonation, DashboardData, Donor
+
+
 
 # Setup flask
 app = Flask(__name__) # Create an instance of the flask app and put in variable app
@@ -20,6 +23,7 @@ login_manager.login_message = ''
 
 # Setup database
 db = MariaDBBackend()
+db2 = FirebaseBackend()
 
 # This callback is used by flask login to load the user object from the user id stored in the session
 @login_manager.user_loader

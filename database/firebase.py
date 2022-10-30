@@ -12,16 +12,16 @@ class FirebaseBackend:
         super().__init__()
 
     @property
-    def users_ref(self) -> gcloudfirestore.CollectionReference:
+    def users_ref(self):
         return self.db.collection('users')
 
     @property
-    def donors_ref(self) -> gcloudfirestore.CollectionReference:
+    def donors_ref(self):
         return self.db.collection('donors')
     
     @property
-    def bloodtypes_ref(self) -> gcloudfirestore.CollectionReference:
-            return self.db.collection('bloodtype')
+    def bloodtypes_ref(self):
+        return self.db.collection('bloodtype')
 
     @property
     def role_ref(self):

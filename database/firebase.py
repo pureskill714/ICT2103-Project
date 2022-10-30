@@ -1,25 +1,26 @@
 
+import google.cloud.firestore as gcloudfirestore
 from firebase_admin import credentials, firestore, initialize_app
 
 from database.models import BloodDonation, BloodRequest, Branch, Donor, User
 
 class FirebaseBackend:
     def __init__(self):
-        self.creds = credentials.Certificate('.\database\serviceAccountKey.json')
+        self.creds = credentials.Certificate('database/serviceAccountKey.json')
         self.app = initialize_app(self.creds) 
-        self.db = firestore.client()
+        self.db: gcloudfirestore.Client = firestore.client()
         super().__init__()
 
     @property
-    def users_ref(self):
+    def users_ref(self) -> gcloudfirestore.CollectionReference:
         return self.db.collection('users')
 
     @property
-    def donors_ref(self):
+    def donors_ref(self) -> gcloudfirestore.CollectionReference:
         return self.db.collection('donors')
     
     @property
-    def bloodtypes_ref(self):
+    def bloodtypes_ref(self) -> gcloudfirestore.CollectionReference:
             return self.db.collection('bloodtype')
 
     @property
@@ -27,14 +28,16 @@ class FirebaseBackend:
         return self.db.collection('role')
 
     def getUserByUsername(self, username):
-        query_ref = self.users_ref.where('username', '==', username).get()
-        doc = query_ref[0].to_dict()
-        return User(doc["id"],doc["username"],doc["password"],doc["name"],doc["branchId"],doc["roleId"])
+        userDocs = self.users_ref.where('username', '==', username).get()
+        if len(userDocs) == 1:
+            doc = userDocs[0].to_dict()
+            return User.fromDict(doc)
+        return None
 
     def getUserById(self, id):
-        query_ref = self.users_ref.where('id', '==', id).get()
-        doc = query_ref[0].to_dict()
-        return User(doc["id"],doc["username"],doc["password"],doc["name"],doc["branchId"],doc["roleId"])
+        # The document uid can be used as the user ID
+        doc = self.users_ref.document(id).get()
+        return User.fromDict(doc.to_dict())
 
     def getAllDonors(self):
         '''Query list of all donors'''  

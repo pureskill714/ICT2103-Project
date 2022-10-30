@@ -16,6 +16,9 @@ class User(UserMixin):
     def fromTuple(data):
         return User(*data) # Unpack tuple
 
+    def fromDict(data):
+        return User(data["id"], data["username"], data["password"], data["name"], data["branchId"], data["roleId"])
+
 class Donor:
     def __init__(self, nric, name, dateOfBirth, contactNo, bloodTypeId, registrationDate, bloodType = None):
         self.nric = nric

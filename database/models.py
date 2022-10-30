@@ -35,6 +35,9 @@ class Donor:
     @staticmethod
     def fromTuple(data):
         return Donor(*data) # Unpack tuple
+        
+    def fromDict(data):
+        return Donor(data["nric"], data["name"], data["dateOfBirth"], data["contactNo"], data["bloodTypeId"], data["registrationDate"])
 
 class BloodDonation:
     def __init__(self, donationId, donorNRIC, quantity, date, branchId, recordedBy, branchName = None, staffUsername = None):
@@ -54,6 +57,9 @@ class BloodDonation:
     @staticmethod
     def fromTuple(data):
         return BloodDonation(*data) # Unpack tuple
+
+    def fromDict(data):
+        return BloodDonation(data["id"], data["nric"], data["quantity"], data["date"], data["branchId"], data["recordedBy"])
 
 class BloodRequest:
     def __init__(self, id, requesterId, bloodTypeId, quantity, date, address, status, fulfilled, requestorUsername = None, bloodType = None):

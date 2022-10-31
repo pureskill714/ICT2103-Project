@@ -81,9 +81,16 @@ class FirebaseBackend:
 
     def getDonorDonations(self, nric: str):
         '''Query one donor's donation records'''
-        donationDocs = self.donation_ref.where('nric', '==', nric).get()
+        # donationDocs = self.donation_ref.where('nric', '==', nric).get()
+        # donationDict = donationDocs[0].to_dict()
+        # return Donor.fromDict(donationDict)
+        donorDocs = self.donors_ref.where('nric', '==', nric)
+        donationDocs = donorDocs.collection(u'blooddonations').get()
         donationDict = donationDocs[0].to_dict()
         return Donor.fromDict(donationDict)
+    
+   
+       
 
         
 
@@ -117,10 +124,8 @@ class FirebaseBackend:
       
 
     def getAllBloodDonations(self):
-        #to change to subcollection
-
         donationList = []
-        donationDocs = self.donation_ref.stream()
+        donationDocs = self.db.collection_group(u'blooddonations').get()
         for doc in donationDocs:
             donationDict = doc.to_dict()
             donationDict["id"] = doc.id
@@ -137,8 +142,14 @@ class FirebaseBackend:
 
 
     def insertDonation(self, donation: BloodDonation):
-        #to be implemneted
-        pass
+        #get donor id
+        donorDocs = self.donors_ref.where('nric', '==', donation.nric).get()
+        donorDict = donorDocs[0].to_dict()
+        donorDict["id"] = donorDocs[0].id
+
+        data={'nric':donation.nric,'branchId':donation.branchId,'date':donation.date,'quantity':donation.quantity,'recordedBy':donation.recordedBy} 
+        self.donors_ref.document(donorDict['id']).collection('blooddonations').add(data)
+     
        
 
     def getAllBranches(self):

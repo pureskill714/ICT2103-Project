@@ -96,9 +96,8 @@
                     <div>
                         <a href="{{ '/donations?q=' + donor.nric }}" class="btn btn-danger view-donations-btn"><i
                                 class="bi bi-arrow-through-heart-fill me-2"></i>View Donations</a>
-                        <a class="btn btn-danger edit-donor-btn" data-donor-nric="{{ donor.nric }}"
-                            data-bs-toggle="modal" data-bs-target="#edit-donor-modal"><i
-                                class="bi bi-pencil-square me-2"></i>Edit</a>
+                        <a class="btn btn-danger edit-donor-btn" data-donor-nric="{{ donor.nric }}">
+                            <i class="bi bi-pencil-square me-2"></i>Edit</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -214,6 +213,8 @@
                 $('#update-modal-dob').val(new Date(res.data.dateOfBirth).toISOString().split('T')[0]);
                 $('#update-modal-contact').val(res.data.contactNo);
                 $('#update-modal-bloodtype').val(res.data.bloodType);
+
+                $('#edit-donor-modal').modal('show');
             }
         });
     }
@@ -238,10 +239,10 @@
 
     function addDonorHandler(e) {
         e.preventDefault();
-        $('add-donor-status').removeClass('d-none'); // Show the loading spinner
+        $('#add-donor-status').removeClass('d-none'); // Show the loading spinner
         $.post('/donors', $(e.target).serialize(), (res) => {
             if (res.success) {
-                $('add-donor-status').addClass('d-none'); // Hide the loading spinner
+                $('#add-donor-status').addClass('d-none'); // Hide the loading spinner
 
                 let newDonor = res.data;
                 // Copy paste the first donor card and edit

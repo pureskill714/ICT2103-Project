@@ -97,7 +97,7 @@ def donors():
             db.commit()
             return jsonify(success=True, data=vars(donor))
         except Exception as e:
-            return jsonify(success=False, error=e)
+            return jsonify(success=False, error=e.message)
 
     
     donors = db.getAllDonors()
@@ -127,7 +127,7 @@ def donations():
             db.commit()
             return jsonify(success=True, data=vars(donation))
         except Exception as e:
-            return jsonify(success=False, error=e)
+            return jsonify(success=False, error=e.message)
 
     donors = db.getAllDonors()
     donations = db.getAllBloodDonations()

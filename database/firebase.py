@@ -89,7 +89,13 @@ class FirebaseBackend:
         
 
     def insertDonor(self, donor: Donor):
-        data={'nric':donor.nric,'name':donor.name,'dateOfBirth':donor.dateOfBirth,'contactNo':donor.contactNo,'bloodTypeId':donor.bloodTypeId,'registrationDate':donor.registrationDate} 
+        data = {
+            'nric':donor.nric,
+            'name':donor.name,
+            'dateOfBirth':donor.dateOfBirth,
+            'contactNo':donor.contactNo,
+            'bloodType':donor.bloodType,
+            'registrationDate':donor.registrationDate} 
         self.donors_ref.add(data)
         
         
@@ -102,19 +108,15 @@ class FirebaseBackend:
         donorDict = donorDocs[0].to_dict()
         donorDict["id"] = donorDocs[0].id
         #Update Query
-        data={'nric':donor.nric,'name':donor.name,'dateOfBirth':donor.dateOfBirth,'contactNo':donor.contactNo,'bloodTypeId':donor.bloodTypeId}
+        data={'nric':donor.nric,'name':donor.name,'dateOfBirth':donor.dateOfBirth,'contactNo':donor.contactNo,'bloodType':donor.bloodType}
         self.donors_ref.document(donorDict['id']).update(data)
        
 
     def deleteDonorByNRIC(self, nric: str):
-        #to be fixed -- not working, might have issue with donations data
-
         #get donor id
         donorDocs = self.donors_ref.where('nric', '==', nric).get()
-        donorDict = donorDocs[0].to_dict()
-        donorDict["id"] = donorDocs[0].id
-        #Delete Query
-        self.donors_ref.document(donorDict['id']).delete()
+        if donorDocs[0].exists:
+            self.donors_ref.document(donorDocs[0].id).delete()
       
 
     def getAllBloodDonations(self):

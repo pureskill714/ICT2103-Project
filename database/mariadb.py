@@ -61,12 +61,22 @@ class MariaDBBackend:
 
     def getAllDonors(self):
         '''Query list of all donors'''
-        self._cursor.execute(f'SELECT d.*, bt.type FROM {TABLE_DONOR} d INNER JOIN {TABLE_BLOODTYPE} bt ON d.BloodTypeId=bt.id ORDER BY d.nric')
+        statement = f'''
+            SELECT d.nric, d.name, d.dateOfBirth, d.contactNo, bt.type, d.registrationDate FROM {TABLE_DONOR} d
+            INNER JOIN {TABLE_BLOODTYPE} bt ON d.BloodTypeId=bt.id
+            ORDER BY d.nric
+        '''
+        self._cursor.execute(statement)
         return [Donor.fromTuple(d) for d in self._cursor.fetchall()]
 
     def getDonorByNRIC(self, nric: str):
         '''Query one donor by NRIC'''
-        self._cursor.execute(f'SELECT d.*, bt.type FROM {TABLE_DONOR} d INNER JOIN {TABLE_BLOODTYPE} bt ON d.BloodTypeId=bt.id WHERE nric=?', (nric,))
+        statement = f'''
+            SELECT d.nric, d.name, d.dateOfBirth, d.contactNo, bt.type, d.registrationDate FROM {TABLE_DONOR} d
+            INNER JOIN {TABLE_BLOODTYPE} bt ON d.BloodTypeId=bt.id
+            WHERE nric=?
+        '''
+        self._cursor.execute(statement, (nric,))
         res = self._cursor.fetchone()
         if res is None:
             return None
@@ -78,8 +88,12 @@ class MariaDBBackend:
         return [BloodDonation.fromTuple(d) for d in self._cursor.fetchall()]
 
     def insertDonor(self, donor: Donor):
-        statement = f'INSERT INTO {TABLE_DONOR} VALUES (?, ?, ?, ?, ?, ?)'
-        data = donor.toTuple()
+        bloodTypeId = self.getBloodTypeId(donor.bloodType)
+        statement = f'''
+            INSERT INTO {TABLE_DONOR} (nric, name, dateOfBirth, contactNo, bloodTypeId, registrationDate)
+            VALUES (?, ?, ?, ?, ?, ?)
+        '''
+        data = donor.toTuple(bloodTypeId)
         assert(len(data) == 6)
         try:
             self._cursor.execute(statement, data)
@@ -87,12 +101,13 @@ class MariaDBBackend:
             print(f"Error inserting new donor: {e}")
 
     def updateDonor(self, donor: Donor):
+        bloodTypeId = self.getBloodTypeId(donor.bloodType)
         statement = f'''
             UPDATE {TABLE_DONOR}
             SET name=?, dateOfBirth=?, contactNo=?, bloodTypeId=?
             WHERE nric=?
         '''
-        self._cursor.execute(statement, (donor.name, donor.dateOfBirth, donor.contactNo, donor.bloodTypeId, donor.nric))
+        self._cursor.execute(statement, (donor.name, donor.dateOfBirth, donor.contactNo, bloodTypeId, donor.nric))
 
     def deleteDonorByNRIC(self, nric: str):
         '''Delete donor by NRIC'''
@@ -101,7 +116,12 @@ class MariaDBBackend:
 
     def getAllBloodDonations(self):
         '''Query list of all blood donations'''
-        statement = f'SELECT d.*, b.name, u.username FROM {TABLE_BLOODDONATION} d INNER JOIN {TABLE_BRANCH} b ON d.branchId=b.id INNER JOIN {TABLE_USER} u ON d.recordedBy=u.id ORDER BY d.date DESC, d.id'
+        statement = f'''
+            SELECT d.*, b.name, u.username FROM {TABLE_BLOODDONATION} d
+            INNER JOIN {TABLE_BRANCH} b ON d.branchId=b.id
+            INNER JOIN {TABLE_USER} u ON d.recordedBy=u.id
+            ORDER BY d.date DESC, d.id
+        '''
         self._cursor.execute(statement)
         return [BloodDonation.fromTuple(bd) for bd in self._cursor.fetchall()]
 

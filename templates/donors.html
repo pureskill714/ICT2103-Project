@@ -15,17 +15,17 @@
 
             <!-- Add donor form toggle -->
             <div class="mb-3">
-                <button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#add-donor-form"
-                    aria-expanded="false" aria-controls="addDonationForm">
+                <button class="btn btn-danger" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#add-donor-collapse">
                     <i class="bi bi-plus-lg me-2"></i>Add New Donor
                 </button>
             </div>
 
             <!-- Add donor form -->
-            <div class="collapse" id="add-donor-form">
+            <div class="collapse" id="add-donor-collapse">
                 <div class="card mb-3">
                     <div class="card-body">
-                        <form>
+                        <form id="add-donor-form">
                             <div class="row">
                                 <h5>Add new donor</h5>
                                 <div class="col-sm-6">
@@ -102,14 +102,16 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title mb-0">
+                    <h5 class="card-title mb-2">
                         <span class="donor-card-name">{{ donor.name }}</span>
-                        <span class="badge bg-danger donor-card-bloodtype">{{ donor.bloodType }}</span>
                     </h5>
                     <div class="card-text">
-                        <span class="badge rounded-pill bg-secondary mb-3 donor-card-age">{{ today.year -
-                            donor.dateOfBirth.year
-                            }}yo</span>
+                        <div class="mb-2">
+                            <span class="badge bg-danger donor-card-bloodtype">{{ donor.bloodType }}</span>
+                            <span class="badge rounded-pill bg-secondary donor-card-age">{{ today.year -
+                                donor.dateOfBirth.year
+                                }}yo</span>
+                        </div>
                         <div class="d-flex justify-content-center gap-3">
                             <div class="input-group">
                                 <span class="input-group-text">Contact</span>
@@ -124,7 +126,7 @@
                             <div class="input-group">
                                 <span class="input-group-text">Registered</span>
                                 <input type="text" class="form-control donor-card-registered"
-                                    value="{{ donor.registrationDate.date() }}" readonly />
+                                    value="{{ donor.registrationDate }}" readonly />
                             </div>
                         </div>
                     </div>
@@ -207,13 +209,94 @@
     function editButtonHandler(e) {
         $.ajax({
             url: `/query?type=donor&key=nric&val=${$(e.target).data('donor-nric')}`, success: (res) => {
-                $('#update-modal-nric').val(res.nric);
-                $('#update-modal-name').val(res.name);
-                $('#update-modal-dob').val(new Date(res.dateOfBirth).toISOString().split('T')[0]);
-                $('#update-modal-contact').val(res.contactNo);
-                $('#update-modal-bloodtype').val(res.bloodType);
+                $('#update-modal-nric').val(res.data.nric);
+                $('#update-modal-name').val(res.data.name);
+                $('#update-modal-dob').val(new Date(res.data.dateOfBirth).toISOString().split('T')[0]);
+                $('#update-modal-contact').val(res.data.contactNo);
+                $('#update-modal-bloodtype').val(res.data.bloodType);
             }
         });
+    }
+
+    function populateDonorCard(donorCard, donor) {
+        donorCard.find('.donor-card-nric').text(donor.nric);
+        donorCard.find('.donor-card-name').text(donor.name);
+        donorCard.find('.donor-card-dob').val(donor.dateOfBirth);
+        donorCard.find('.donor-card-contact').val(donor.contactNo);
+        donorCard.find('.donor-card-bloodtype').val(donor.bloodType);
+        donorCard.find('.donor-card-registered').val(donor.registrationDate);
+        donorCard.find('.edit-donor-btn').attr('data-donor-nric', donor.nric);
+        donorCard.find('.view-donations-btn').attr('href', '/donations?q=' + donor.nric);
+
+        let today = new Date();
+        let dob = new Date(donor.dateOfBirth);
+        let age = today.getFullYear() - dob.getFullYear();
+        let m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+        donorCard.find('.donor-card-age').text(age.toString() + 'yo');
+    }
+
+    function addDonorHandler(e) {
+        e.preventDefault();
+        $('add-donor-status').removeClass('d-none'); // Show the loading spinner
+        $.post('/donors', $(e.target).serialize(), (res) => {
+            if (res.success) {
+                $('add-donor-status').addClass('d-none'); // Hide the loading spinner
+
+                let newDonor = res.data;
+                // Copy paste the first donor card and edit
+                let first = $('.donor-card').first();
+                if (first) {
+                    let copy = first.clone()
+                    copy.insertBefore(first);
+                    populateDonorCard(copy, newDonor);
+                }
+
+                // Reset and collapse form
+                $(e.target).trigger('reset');
+                $('#add-donor-collapse').collapse('hide');
+            }
+
+            console.log('Add donor success', res);
+        });
+    }
+
+    function editDonorHandler(e) {
+        e.preventDefault();
+        if (e.target.checkValidity()) { // checkValididity() is from bootstrap validation
+            $.post('/donors?action=update', $(e.target).serialize(), (res) => {
+                if (res.success) {
+                    $('#edit-donor-modal').modal('hide');
+
+                    $('.donor-card').each((i, elem) => {
+                        if ($(elem).find('.donor-card-nric').text() === res.data.nric) {
+                            populateDonorCard($(elem), res.data);
+                            return false; // Break the loop
+                        }
+                    });
+                }
+
+                console.log('Edit donor', res);
+            });
+        }
+    }
+
+    function deleteDonorHandler(e) {
+        $.post('/donors?action=delete', $('#edit-donor-form').serialize(), (res) => {
+            if (res.success) {
+                $('#edit-donor-modal').modal('hide');
+
+                $('.donor-card').each((i, elem) => {
+                    if ($(elem).find('.donor-card-nric').text() === res.data.nric) {
+                        $(elem).remove();
+                        return false; // Break the loop
+                    }
+                });
+            }
+
+            console.log('Delete donor success');
+        }
+        );
     }
 
     $(document).ready(() => {
@@ -221,72 +304,13 @@
         $('.edit-donor-btn').click(editButtonHandler);
 
         // Add donor form submit handler
-        $('#add-donor-form').submit((e) => {
-            e.preventDefault();
-            $('add-donor-status').removeClass('d-none'); // Show the loading spinner
-            $.post('/donors', $(e.target).serialize(), (res) => {
-                if (res.success) {
-                    $('add-donor-status').addClass('d-none'); // Hide the loading spinner
-                    console.log('Add donor success');
-
-                    // Copy paste the first donor card and edit
-                    let first = $('.donor-card').first();
-                    if (first) {
-                        let copy = first.clone()
-                        copy.insertBefore(first);
-                        copy.find('.donor-card-nric').text($('#add-form-nric').val());
-                        copy.find('.donor-card-name').text($('#add-form-name').val());
-                        copy.find('.donor-card-dob').val($('#add-form-dob').val());
-                        copy.find('.donor-card-contact').val($('#add-form-contact').val());
-                        copy.find('.donor-card-bloodtype').val($('#add-form-bloodtype').val());
-                        copy.find('.donor-card-registered').val(new Date(res.data.registrationDate).toISOString().split('T')[0]);
-                        copy.find('.edit-donor-btn').attr('data-donor-nric', $('#add-form-nric').val());
-                        copy.find('.view-donations-btn').attr('href', '/donations?q=' + res.data.nric);
-                    }
-                }
-            });
-        });
+        $('#add-donor-form').submit(addDonorHandler);
 
         // Edit donor form submit button
-        $('#edit-donor-form').submit((e) => {
-            e.preventDefault();
-            if (e.target.checkValidity()) { // checkValididity() is from bootstrap validation
-                $.post('/donors?action=update', $(e.target).serialize(), (res) => {
-                    if (res.success) {
-                        $('#edit-donor-modal').modal('hide');
-
-                        $('.donor-card').each((i, elem) => {
-                            if ($(elem).find('.donor-card-nric').text() === $('#update-modal-nric').val()) {
-                                $(elem).find('.donor-card-name').text($('#update-modal-name').val());
-                                $(elem).find('.donor-card-dob').val($('#update-modal-dob').val());
-                                $(elem).find('.donor-card-contact').val($('#update-modal-contact').val());
-                                $(elem).find('.donor-card-bloodtype').val($('#update-modal-bloodtype').val());
-                                return false; // Break the loop
-                            }
-                        });
-
-                        console.log('Edit donor success');
-                    }
-                });
-            }
-        });
+        $('#edit-donor-form').submit(editDonorHandler);
 
         // Delete donor button
-        $('#delete-donor-btn').click((e) => {
-            $.post('/donors?action=delete', $('#edit-donor-form').serialize(), (res) => {
-                if (res.success) {
-                    $('#edit-donor-modal').modal('hide');
-
-                    $('.donor-card').each((i, elem) => {
-                        if ($(elem).find('.donor-card-nric').text() === $('#update-modal-nric').val()) {
-                            $(elem).hide();
-                            return false; // Break the loop
-                        }
-                    });
-                }
-            }
-            );
-        });
+        $('#delete-donor-btn').click(deleteDonorHandler);
     });
 </script>
 {% endblock %}

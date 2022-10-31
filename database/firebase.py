@@ -57,16 +57,10 @@ class FirebaseBackend:
         donorDocs = self.donors_ref.stream()
         for doc in donorDocs:
             donorDict = doc.to_dict()
-            donorDict["id"] = doc.id
-            #Convert Date string to date format
-            date_str = str(donorDict["dateOfBirth"])
-            date_object = datetime.strptime(date_str, '%Y-%m-%d').date()
-            donorDict["dateOfBirth"] = date_object
-            #Retrieve matching donor bloodtype
-            btDocs = self.bloodtypes_ref.document(str(donorDict["bloodTypeId"])).get()
-            btDict = btDocs.to_dict()
-            donorDict["bloodType"] = btDict["type"]
-            donorList.append(donorDict)
+            # Convert Date string to date format
+            donorDict["dateOfBirth"] = datetime.strptime(donorDict["dateOfBirth"], '%Y-%m-%d').date()
+            donorList.append(Donor.fromDict(donorDict))
+            
         return donorList
                  
     def getDonorByNRIC(self, nric: str):

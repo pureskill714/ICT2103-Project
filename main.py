@@ -79,8 +79,7 @@ def donors():
         dateOfBirth = request.form.get('dateOfBirth')
         contactNo = request.form.get('contactNo')
         bloodType = request.form.get('bloodType')
-        bloodTypeId = db.getBloodTypeId(bloodType) if bloodType is not None else None
-        donor = Donor(nric, name, dateOfBirth, contactNo, bloodTypeId, None)
+        donor = Donor(nric, name, dateOfBirth, contactNo, bloodType, None)
 
         # Depending on the query string do the respective action
         try:
@@ -149,7 +148,8 @@ def query():
         if key == 'nric':
             val = request.args.get('val')
             donor = db.getDonorByNRIC(val)
-            return jsonify(vars(donor))
+            return jsonify(success=True, data=vars(donor))
+    return jsonify(success=False, message='Bad query')
 
 if __name__ == '__main__':
     app.run(debug=True)

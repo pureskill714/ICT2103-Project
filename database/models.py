@@ -20,24 +20,25 @@ class User(UserMixin):
         return User(data["id"], data["username"], data["password"], data["name"], data["branchId"], data["roleId"])
 
 class Donor:
-    def __init__(self, nric, name, dateOfBirth, contactNo, bloodTypeId, registrationDate, bloodType = None):
+    def __init__(self, nric, name, dateOfBirth, contactNo, bloodType, registrationDate):
         self.nric = nric
         self.name = name
         self.dateOfBirth = dateOfBirth
         self.contactNo = contactNo
-        self.bloodTypeId = bloodTypeId
         self.registrationDate = registrationDate
         self.bloodType = bloodType
 
-    def toTuple(self):
-        return (self.nric, self.name, self.dateOfBirth, self.contactNo, self.bloodTypeId, self.registrationDate)
+    def toTuple(self, bloodTypeId):
+        '''Converts to relational DB format'''
+        return (self.nric, self.name, self.dateOfBirth, self.contactNo, bloodTypeId, self.registrationDate)
 
     @staticmethod
     def fromTuple(data):
+        '''Converts from relational DB format'''
         return Donor(*data) # Unpack tuple
         
     def fromDict(data):
-        return Donor(data["nric"], data["name"], data["dateOfBirth"], data["contactNo"], data["bloodTypeId"], data["registrationDate"])
+        return Donor(data["nric"], data["name"], data["dateOfBirth"], data["contactNo"], data["bloodType"], data["registrationDate"])
 
 class BloodDonation:
     def __init__(self, donationId, donorNRIC, quantity, date, branchId, recordedBy, branchName = None, staffUsername = None):

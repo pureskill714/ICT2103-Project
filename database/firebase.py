@@ -1,5 +1,5 @@
 
-import google.cloud.firestore as gcloudfirestore
+import google.cloud.firestore_v1 as gcloudfirestore
 from firebase_admin import credentials, firestore, initialize_app
 
 from database.models import BloodDonation, BloodRequest, Branch, Donor, User

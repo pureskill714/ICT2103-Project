@@ -72,8 +72,11 @@ class FirebaseBackend:
     def getDonorByNRIC(self, nric: str):
         '''Query one donor by NRIC'''
         donorsDocs = self.donors_ref.where('nric', '==', nric).get()
-        donorDict = donorsDocs[0].to_dict()
-        return Donor.fromDict(donorDict)
+        if len(donorsDocs) == 1:
+            donorDict = donorsDocs[0].to_dict()
+            return  Donor.fromDict(donorDict)
+        return None
+
        
 
     def getDonorDonations(self, nric: str):
@@ -90,18 +93,32 @@ class FirebaseBackend:
         
         
        
-
     def updateDonor(self, donor: Donor):
-        #to be implemneted
-        pass
+        #to be fixed -- Blood type not showing, might have issue with donations data
+
+        #get donor id
+        donorDocs = self.donors_ref.where('nric', '==', donor.nric).get()
+        donorDict = donorDocs[0].to_dict()
+        donorDict["id"] = donorDocs[0].id
+        #Update Query
+        data={'nric':donor.nric,'name':donor.name,'dateOfBirth':donor.dateOfBirth,'contactNo':donor.contactNo,'bloodTypeId':donor.bloodTypeId}
+        self.donors_ref.document(donorDict['id']).update(data)
        
 
     def deleteDonorByNRIC(self, nric: str):
-        #to be implemneted
-        pass
+        #to be fixed -- not working, might have issue with donations data
+
+        #get donor id
+        donorDocs = self.donors_ref.where('nric', '==', nric).get()
+        donorDict = donorDocs[0].to_dict()
+        donorDict["id"] = donorDocs[0].id
+        #Delete Query
+        self.donors_ref.document(donorDict['id']).delete()
       
 
     def getAllBloodDonations(self):
+        #to change to subcollection
+
         donationList = []
         donationDocs = self.donation_ref.stream()
         for doc in donationDocs:
@@ -137,8 +154,8 @@ class FirebaseBackend:
     def getBloodTypeId(self, bloodType):
         btDocs = self.bloodtypes_ref.where('type', '==', bloodType).get()
         btDict = btDocs[0].to_dict()
-        return btDict['id']
-
+        return btDict['id'] if btDict is not None else None
+      
 
     def getDashboardStats(self):
         #to be implemneted

@@ -41,19 +41,20 @@ class Donor:
         return Donor(data["nric"], data["name"], data["dateOfBirth"], data["contactNo"], data["bloodType"], data["registrationDate"])
 
 class BloodDonation:
-    def __init__(self, donationId, donorNRIC, quantity, date, branchId, recordedBy, branchName = None, staffUsername = None):
-        self.id = donationId
-        self.nric = donorNRIC
+    def __init__(self, id, nric, quantity, date, branchId, recordedBy, usedBy, branchName = None, staffUsername = None):
+        self.id = id
+        self.nric = nric
         self.quantity = quantity
         self.date = date
         self.branchId = branchId
         self.recordedBy = recordedBy
+        self.usedBy = usedBy
 
         self.branchName = branchName
         self.staffUsername = staffUsername
 
     def toTuple(self):
-        return (self.id, self.nric, self.quantity, self.date, self.branchId, self.recordedBy)
+        return (self.id, self.nric, self.quantity, self.date, self.branchId, self.recordedBy, self.usedBy)
 
     @staticmethod
     def fromTuple(data):

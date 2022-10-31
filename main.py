@@ -107,12 +107,27 @@ def donors():
 @login_required
 def donations():
     if request.method == 'POST':
-        nric =  request.form.get('donorNRIC')
-        quantity =  request.form.get('quantity')
-        branchId =  request.form.get('branchId')
-        newDonation = BloodDonation(None, nric, quantity, datetime.now(), branchId, current_user.id)
-        db.insertDonation(newDonation)
-        db.commit()
+        id = request.form.get('id')
+        nric = request.form.get('nric')
+        quantity = request.form.get('quantity')
+        branchId = request.form.get('branchId')
+        donation = BloodDonation(id, nric, quantity, None, branchId, current_user.id, None)
+
+        # Depending on the query string do the respective action
+        try:
+            action = request.args.get('action')
+            if action is None or action == 'create':
+                # /donations?action=delete
+                donation.date = datetime.now()
+                db.insertDonation(donation)
+            elif action == 'delete':
+                # /donations?action=delete
+                # To implement
+                pass
+            db.commit()
+            return jsonify(success=True, data=vars(donation))
+        except Exception as e:
+            return jsonify(success=False, error=e)
 
     donors = db.getAllDonors()
     donations = db.getAllBloodDonations()
@@ -149,7 +164,7 @@ def query():
             val = request.args.get('val')
             donor = db.getDonorByNRIC(val)
             return jsonify(success=True, data=vars(donor))
-    return jsonify(success=False, message='Bad query')
+    return jsonify(success=False, error='Bad query')
 
 if __name__ == '__main__':
     app.run(debug=True)

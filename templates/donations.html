@@ -29,8 +29,8 @@
                             <div class="row">
                                 <h5>Add new donation</h5>
                                 <div class="col-md-6 mb-3">
-                                    <label for="donorNRIC" class="form-label">Donor</label>
-                                    <select class="form-select" name="donorNRIC" required>
+                                    <label for="nric" class="form-label">Donor</label>
+                                    <select class="form-select" name="nric" required>
                                         <option value="">Choose donor...</option>
                                         {% for donor in donors %}
                                         <option value="{{ donor.nric }}">{{ donor.name }} ({{ donor.nric }})</option>

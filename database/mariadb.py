@@ -126,10 +126,12 @@ class MariaDBBackend:
         return [BloodDonation.fromTuple(bd) for bd in self._cursor.fetchall()]
 
     def insertDonation(self, donation: BloodDonation):
-        statement = f'INSERT INTO {TABLE_BLOODDONATION} VALUES (?, ?, ?, ?, ?, ?)'
+        statement = f'''
+            INSERT INTO {TABLE_BLOODDONATION} (id, nric, quantity, date, branchId, recordedBy, usedBy)
+            VALUES (?, ?, ?, ?, ?, ?)
+        '''
         data = donation.toTuple()
-        assert(len(data) == 6)
-        # data = data[1:] # Omit ID because it's auto generated
+        assert(len(data) == 7)
         try:
             self._cursor.execute(statement, data)
         except mariadb.Error as e:

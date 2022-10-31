@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField, SubmitField
@@ -8,8 +8,6 @@ from wtforms.validators import InputRequired, Length
 from database.mariadb import MariaDBBackend
 from database.firebase import FirebaseBackend
 from database.models import BloodDonation, DashboardData, Donor
-
-
 
 # Setup flask
 app = Flask(__name__) # Create an instance of the flask app and put in variable app
@@ -21,9 +19,9 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message = ''
 
-# Setup database
+# Setup database (only use one of them)
 db = MariaDBBackend()
-db2 = FirebaseBackend()
+#db = FirebaseBackend()
 
 # This callback is used by flask login to load the user object from the user id stored in the session
 @login_manager.user_loader
@@ -76,15 +74,32 @@ def login():
 @login_required
 def donors():
     if request.method == 'POST':
-        nric =  request.form.get('nric')
-        name =  request.form.get('name')
-        dateOfBirth =  request.form.get('dateOfBirth')
-        contactNo =  request.form.get('contactNo')
-        bloodType =  request.form.get('bloodType')
-        bloodTypeId = db.getBloodTypeId(bloodType)
-        newDonor = Donor(nric, name, dateOfBirth, contactNo, bloodTypeId, datetime.now())
-        db.insertDonor(newDonor)
-        db.commit()
+        nric = request.form.get('nric')
+        name = request.form.get('name')
+        dateOfBirth = request.form.get('dateOfBirth')
+        contactNo = request.form.get('contactNo')
+        bloodType = request.form.get('bloodType')
+        bloodTypeId = db.getBloodTypeId(bloodType) if bloodType is not None else None
+        donor = Donor(nric, name, dateOfBirth, contactNo, bloodTypeId, None)
+
+        # Depending on the query string do the respective action
+        try:
+            action = request.args.get('action')
+            if action is None or action == 'create':
+                # /donor?action=create
+                donor.registrationDate = datetime.now()
+                db.insertDonor(donor)
+            elif action == 'update':
+                # /donor?action=update
+                db.updateDonor(donor)
+            elif action == 'delete':
+                # /donor?action=delete
+                db.deleteDonorByNRIC(nric)
+            db.commit()
+            return jsonify(success=True, data=vars(donor))
+        except Exception as e:
+            return jsonify(success=False, error=e)
+
     
     donors = db.getAllDonors()
     return render_template('donors.html', donors = donors, today=datetime.now())
@@ -123,6 +138,18 @@ def logout():
     logout_user()  # log the user out
     flash('Logged out')
     return redirect(url_for('login'))
+
+@app.route('/query')
+@login_required
+def query():
+    type = request.args.get('type')
+
+    if type == 'donor':
+        key = request.args.get('key')
+        if key == 'nric':
+            val = request.args.get('val')
+            donor = db.getDonorByNRIC(val)
+            return jsonify(vars(donor))
 
 if __name__ == '__main__':
     app.run(debug=True)

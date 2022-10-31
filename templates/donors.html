@@ -15,57 +15,46 @@
 
             <!-- Add donor form toggle -->
             <div class="mb-3">
-                <button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#addDonorForm"
+                <button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#add-donor-form"
                     aria-expanded="false" aria-controls="addDonationForm">
                     <i class="bi bi-plus-lg me-2"></i>Add New Donor
                 </button>
             </div>
 
             <!-- Add donor form -->
-            <div class="collapse" id="addDonorForm">
+            <div class="collapse" id="add-donor-form">
                 <div class="card mb-3">
                     <div class="card-body">
-                        <form method="POST" target="_self">
+                        <form>
                             <div class="row">
                                 <h5>Add new donor</h5>
                                 <div class="col-sm-6">
                                     <label for="nric" class="form-label">NRIC</label>
-                                    <input type="text" class="form-control" name="nric" placeholder="Enter NRIC"
-                                        required>
-                                    <div class="invalid-feedback">
-                                        Valid NRIC is required.
-                                    </div>
+                                    <input type="text" class="form-control" name="nric" id="add-form-nric"
+                                        placeholder="Enter NRIC" required>
                                 </div>
 
                                 <div class="col-sm-6 mb-3">
                                     <label for="name" class="form-label">Name</label>
-                                    <input type="text" class="form-control" name="name" placeholder="Enter name"
-                                        required>
-                                    <div class="invalid-feedback">
-                                        Valid name is required.
-                                    </div>
+                                    <input type="text" class="form-control" name="name" id="add-form-name"
+                                        placeholder="Enter name" required>
                                 </div>
 
                                 <div class="col-sm-6 mb-3">
                                     <label for="dateOfBirth" class="form-label">Date of birth</label>
-                                    <input type="date" class="form-control" name="dateOfBirth" required>
-                                    <div class="invalid-feedback">
-                                        Valid date of birth is required.
-                                    </div>
+                                    <input type="date" class="form-control" name="dateOfBirth" id="add-form-dob"
+                                        required>
                                 </div>
 
                                 <div class="col-sm-6 mb-3">
                                     <label for="contactNo" class="form-label">Contact No</label>
-                                    <input type="text" class="form-control" name="contactNo" placeholder="XXXXXXXX"
-                                        required>
-                                    <div class="invalid-feedback">
-                                        Valid contact number is required.
-                                    </div>
+                                    <input type="text" class="form-control" name="contactNo" id="add-form-contact"
+                                        placeholder="XXXXXXXX" required>
                                 </div>
 
                                 <div class="col-md-5 mb-3">
                                     <label for="bloodType" class="form-label">Blood Type</label>
-                                    <select class="form-select" name="bloodType" required>
+                                    <select class="form-select" name="bloodType" id="add-form-bloodtype" required>
                                         <option value="">Choose blood type...</option>
                                         <option value="A+">A+</option>
                                         <option value="A-">A-</option>
@@ -76,12 +65,14 @@
                                         <option value="O+">O+</option>
                                         <option value="O-">O-</option>
                                     </select>
-                                    <div class="invalid-feedback">
-                                        Please select a blood type.
-                                    </div>
                                 </div>
                             </div>
+
                             <button type="submit" class="btn btn-danger">Submit</button>
+
+                            <div id="add-donor-status" class="spinner-border text-danger d-none" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -96,37 +87,44 @@
                 </div>
             </form>
 
+            <!-- Donor list -->
             {% for donor in donors %}
             {% if request.args.get('q', '') in donor.nric or request.args.get('q', '') in donor.name %}
-            <div class="card mb-3">
+            <div class="card mb-3 donor-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    {{ donor.nric }}
+                    <span class="donor-card-nric">{{ donor.nric }}</span>
                     <div>
-                        <a href="{{ '/donations?q=' + donor.nric }}" class="btn btn-danger"><i class="bi bi-arrow-through-heart-fill me-2"></i>View Donations</a>
-                        <a href="" class="btn btn-danger"><i class="bi bi-pencil-square me-2"></i>Edit</a>
+                        <a href="{{ '/donations?q=' + donor.nric }}" class="btn btn-danger view-donations-btn"><i
+                                class="bi bi-arrow-through-heart-fill me-2"></i>View Donations</a>
+                        <a class="btn btn-danger edit-donor-btn" data-donor-nric="{{ donor.nric }}"
+                            data-bs-toggle="modal" data-bs-target="#edit-donor-modal"><i
+                                class="bi bi-pencil-square me-2"></i>Edit</a>
                     </div>
                 </div>
                 <div class="card-body">
                     <h5 class="card-title mb-0">
-                        {{ donor.name }}
-                        <span class="badge bg-danger">{{ donor.bloodType }}</span>
+                        <span class="donor-card-name">{{ donor.name }}</span>
+                        <span class="badge bg-danger donor-card-bloodtype">{{ donor.bloodType }}</span>
                     </h5>
                     <div class="card-text">
-                        <span class="badge rounded-pill bg-secondary mb-3">{{ today.year - donor.dateOfBirth.year
+                        <span class="badge rounded-pill bg-secondary mb-3 donor-card-age">{{ today.year -
+                            donor.dateOfBirth.year
                             }}yo</span>
                         <div class="d-flex justify-content-center gap-3">
                             <div class="input-group">
-                                <span class="input-group-text" id="basic-addon1">Contact</span>
-                                <input type="text" class="form-control" value="{{ donor.contactNo }}" readonly />
-                            </div>
-                            <div class="input-group">
-                                <span class="input-group-text" id="basic-addon1">DOB</span>
-                                <input type="text" class="form-control" value="{{ donor.dateOfBirth }}" readonly />
-                            </div>
-                            <div class="input-group">
-                                <span class="input-group-text" id="basic-addon1">Registered</span>
-                                <input type="text" class="form-control" value="{{ donor.registrationDate.date() }}"
+                                <span class="input-group-text">Contact</span>
+                                <input type="text" class="form-control donor-card-contact" value="{{ donor.contactNo }}"
                                     readonly />
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text">DOB</span>
+                                <input type="text" class="form-control donor-card-dob" value="{{ donor.dateOfBirth }}"
+                                    readonly />
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text">Registered</span>
+                                <input type="text" class="form-control donor-card-registered"
+                                    value="{{ donor.registrationDate.date() }}" readonly />
                             </div>
                         </div>
                     </div>
@@ -137,4 +135,158 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Donor Modal -->
+<div class="modal fade" id="edit-donor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form id="edit-donor-form">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Donor</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="nric" class="form-label">NRIC</label>
+                            <input type="text" class="form-control" id="update-modal-nric" name="nric"
+                                placeholder="Enter NRIC" required readonly>
+                        </div>
+
+                        <div class="col-sm-6 mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="update-modal-name" name="name"
+                                placeholder="Enter name" required>
+                        </div>
+
+                        <div class="col-sm-6 mb-3">
+                            <label for="dateOfBirth" class="form-label">Date of birth</label>
+                            <input type="date" class="form-control" id="update-modal-dob" name="dateOfBirth" required>
+                        </div>
+
+                        <div class="col-sm-6 mb-3">
+                            <label for="contactNo" class="form-label">Contact No</label>
+                            <input type="text" class="form-control" id="update-modal-contact" name="contactNo"
+                                placeholder="XXXXXXXX" required>
+                        </div>
+
+                        <div class="col-md-5 mb-3">
+                            <label for="bloodType" class="form-label">Blood Type</label>
+                            <select class="form-select" id="update-modal-bloodtype" name="bloodType" required>
+                                <option value="">Choose blood type...</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <div>
+                        <button type="button" class="btn btn-danger" id="delete-donor-btn"><i
+                                class="bi bi-trash-fill"></i></button>
+                    </div>
+                    <div class="align-self-end">
+                        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block bodyend %}
+<script>
+    function editButtonHandler(e) {
+        $.ajax({
+            url: `/query?type=donor&key=nric&val=${$(e.target).data('donor-nric')}`, success: (res) => {
+                $('#update-modal-nric').val(res.nric);
+                $('#update-modal-name').val(res.name);
+                $('#update-modal-dob').val(new Date(res.dateOfBirth).toISOString().split('T')[0]);
+                $('#update-modal-contact').val(res.contactNo);
+                $('#update-modal-bloodtype').val(res.bloodType);
+            }
+        });
+    }
+
+    $(document).ready(() => {
+        // Populate the edit modal when edit is clicked
+        $('.edit-donor-btn').click(editButtonHandler);
+
+        // Add donor form submit handler
+        $('#add-donor-form').submit((e) => {
+            e.preventDefault();
+            $('add-donor-status').removeClass('d-none'); // Show the loading spinner
+            $.post('/donors', $(e.target).serialize(), (res) => {
+                if (res.success) {
+                    $('add-donor-status').addClass('d-none'); // Hide the loading spinner
+                    console.log('Add donor success');
+
+                    // Copy paste the first donor card and edit
+                    let first = $('.donor-card').first();
+                    if (first) {
+                        let copy = first.clone()
+                        copy.insertBefore(first);
+                        copy.find('.donor-card-nric').text($('#add-form-nric').val());
+                        copy.find('.donor-card-name').text($('#add-form-name').val());
+                        copy.find('.donor-card-dob').val($('#add-form-dob').val());
+                        copy.find('.donor-card-contact').val($('#add-form-contact').val());
+                        copy.find('.donor-card-bloodtype').val($('#add-form-bloodtype').val());
+                        copy.find('.donor-card-registered').val(new Date(res.data.registrationDate).toISOString().split('T')[0]);
+                        copy.find('.edit-donor-btn').attr('data-donor-nric', $('#add-form-nric').val());
+                        copy.find('.view-donations-btn').attr('href', '/donations?q=' + res.data.nric);
+                    }
+                }
+            });
+        });
+
+        // Edit donor form submit button
+        $('#edit-donor-form').submit((e) => {
+            e.preventDefault();
+            if (e.target.checkValidity()) { // checkValididity() is from bootstrap validation
+                $.post('/donors?action=update', $(e.target).serialize(), (res) => {
+                    if (res.success) {
+                        $('#edit-donor-modal').modal('hide');
+
+                        $('.donor-card').each((i, elem) => {
+                            if ($(elem).find('.donor-card-nric').text() === $('#update-modal-nric').val()) {
+                                $(elem).find('.donor-card-name').text($('#update-modal-name').val());
+                                $(elem).find('.donor-card-dob').val($('#update-modal-dob').val());
+                                $(elem).find('.donor-card-contact').val($('#update-modal-contact').val());
+                                $(elem).find('.donor-card-bloodtype').val($('#update-modal-bloodtype').val());
+                                return false; // Break the loop
+                            }
+                        });
+
+                        console.log('Edit donor success');
+                    }
+                });
+            }
+        });
+
+        // Delete donor button
+        $('#delete-donor-btn').click((e) => {
+            $.post('/donors?action=delete', $('#edit-donor-form').serialize(), (res) => {
+                if (res.success) {
+                    $('#edit-donor-modal').modal('hide');
+
+                    $('.donor-card').each((i, elem) => {
+                        if ($(elem).find('.donor-card-nric').text() === $('#update-modal-nric').val()) {
+                            $(elem).hide();
+                            return false; // Break the loop
+                        }
+                    });
+                }
+            }
+            );
+        });
+    });
+</script>
 {% endblock %}

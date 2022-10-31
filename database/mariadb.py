@@ -61,12 +61,12 @@ class MariaDBBackend:
 
     def getAllDonors(self):
         '''Query list of all donors'''
-        self._cursor.execute(f'SELECT d.*, bt.type FROM {TABLE_DONOR} d INNER JOIN {TABLE_BLOODTYPE} bt ON d.BloodTypeId=bt.id')
+        self._cursor.execute(f'SELECT d.*, bt.type FROM {TABLE_DONOR} d INNER JOIN {TABLE_BLOODTYPE} bt ON d.BloodTypeId=bt.id ORDER BY d.nric')
         return [Donor.fromTuple(d) for d in self._cursor.fetchall()]
 
     def getDonorByNRIC(self, nric: str):
         '''Query one donor by NRIC'''
-        self._cursor.execute(f'SELECT * FROM {TABLE_DONOR} WHERE nric=?', (nric,))
+        self._cursor.execute(f'SELECT d.*, bt.type FROM {TABLE_DONOR} d INNER JOIN {TABLE_BLOODTYPE} bt ON d.BloodTypeId=bt.id WHERE nric=?', (nric,))
         res = self._cursor.fetchone()
         if res is None:
             return None
@@ -89,10 +89,10 @@ class MariaDBBackend:
     def updateDonor(self, donor: Donor):
         statement = f'''
             UPDATE {TABLE_DONOR}
-            SET name=?, dateOfBirth=?, contactNo=?, bloodTypeId=?, registrationDate=?
+            SET name=?, dateOfBirth=?, contactNo=?, bloodTypeId=?
             WHERE nric=?
         '''
-        self._cursor.execute(statement, (donor.name, donor.dateOfBirth, donor.contactNo, donor.bloodTypeId, donor.registrationDate, donor.nric))
+        self._cursor.execute(statement, (donor.name, donor.dateOfBirth, donor.contactNo, donor.bloodTypeId, donor.nric))
 
     def deleteDonorByNRIC(self, nric: str):
         '''Delete donor by NRIC'''

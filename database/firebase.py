@@ -2,7 +2,7 @@
 import google.cloud.firestore_v1 as gcloudfirestore
 from firebase_admin import credentials, firestore, initialize_app
 
-from database.models import BloodDonation, BloodRequest, Branch, Donor, User
+from database.models import BloodDonation, BloodInventory, BloodRequest, Branch, Donor, User
 from datetime import datetime
 
 class FirebaseBackend:
@@ -192,4 +192,10 @@ class FirebaseBackend:
         res = (len(donorDocs),20,len(requestDocs))
         return res
         
-        
+    def getBloodInventoryByBranchId(self, branchId):
+        '''Query blood inventory data
+        Returns: BloodInventory
+        '''
+        inventory = BloodInventory(branchId)
+        inventory.storage['A+'] = 100
+        return inventory

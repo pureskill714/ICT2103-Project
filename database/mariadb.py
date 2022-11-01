@@ -171,7 +171,7 @@ class MariaDBBackend:
 
     # def getBloodInventory(self):
     #     '''Query blood inventory data
-    #     Returns: list of tuple(branchId, blood type, quantity)
+    #     Returns: list of BloodInventory
     #     '''
     #     self._cursor.execute(f'''
     #         SELECT b.branchId, bt.type, SUM(b.quantity) FROM {TABLE_BLOODDONATION} bd
@@ -185,7 +185,7 @@ class MariaDBBackend:
 
     def getBloodInventoryByBranchId(self, branchId):
         '''Query blood inventory data
-        Returns: list of tuple(branchId, blood type, quantity)
+        Returns: BloodInventory
         '''
         self._cursor.execute(f'''
             SELECT b.branchId, bt.type, SUM(b.quantity) FROM {TABLE_BLOODDONATION} b

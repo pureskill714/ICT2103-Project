@@ -104,3 +104,22 @@ class DashboardData:
         self.availableBlood = availableBlood
         self.pendingRequests = pendingRequests
         self.bloodInventoryMap = bloodInventoryMap
+
+class BloodInventory:
+    def __init__(self, branchId):
+        self.branchId = branchId
+        self.storage = dict.fromkeys([
+            'A+', 'A-', 'B+', 'B-',
+            'AB+', 'AB-', 'O+', 'O-'], 0)
+
+    @staticmethod
+    def fromTupleList(data: list):
+        '''Parse list of tuple(branchId, blood type, quantity)
+        Returns: list of BloodInventory'''
+        inventories: dict[str, BloodInventory] = {} # { branchId: BloodInventory }
+        for t in data: # tuple(branchId, blood type, quantity)
+            branchId, bloodType, quantity = t
+            if branchId not in inventories.keys():
+                inventories[branchId] = BloodInventory(branchId)
+            inventories[branchId].storage[bloodType] += quantity
+        return list(inventories.values()) # Unpack tuple

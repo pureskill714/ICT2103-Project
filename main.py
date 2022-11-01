@@ -42,16 +42,8 @@ class LoginForm(FlaskForm):
 @login_required
 def home():
     donorCount, availBlood, requests = db.getDashboardStats()
-    data = DashboardData(donorCount, availBlood, requests, {
-        'A+': availBlood / 2,
-        'A-': availBlood / 4,
-        'B+': availBlood / 4,
-        'B-': availBlood / 16,
-        'AB+': availBlood / 8,
-        'AB-': availBlood / 8,
-        'O+': availBlood / 16,
-        'O-': availBlood / 32
-    })
+    bloodInventory = db.getBloodInventoryByBranchId(current_user.branchId)
+    data = DashboardData(donorCount, availBlood, requests, bloodInventory.storage)
     return render_template('dashboard_staff.html', data=data)
 
 @app.route('/login', methods=['GET', 'POST'])

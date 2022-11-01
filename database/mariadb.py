@@ -2,7 +2,7 @@ import os
 import sys
 
 import mariadb
-from database.models import BloodDonation, BloodRequest, Branch, Donor, User
+from database.models import BloodDonation, BloodInventory, BloodRequest, Branch, Donor, User
 
 TABLE_DONOR = 'Donor'
 TABLE_BLOODTYPE = 'BloodType'
@@ -164,9 +164,37 @@ class MariaDBBackend:
         self._cursor.execute(f'''
             SELECT d.*, b.*, r.* FROM
                 (SELECT COUNT(nric) AS donorCount FROM {TABLE_DONOR}) as d,
-                (SELECT SUM(quantity) AS totalBlood FROM {TABLE_BLOODDONATION}) as b,
+                (SELECT SUM(quantity) AS totalBlood FROM {TABLE_BLOODDONATION} WHERE usedBy IS NULL) as b,
                 (SELECT COUNT(id) AS pendingCount FROM {TABLE_BLOODREQUEST} WHERE fulfilled=0) as r;
         ''')
-        res = self._cursor.fetchone()
-        return res
+        return self._cursor.fetchone()
+
+    # def getBloodInventory(self):
+    #     '''Query blood inventory data
+    #     Returns: list of tuple(branchId, blood type, quantity)
+    #     '''
+    #     self._cursor.execute(f'''
+    #         SELECT b.branchId, bt.type, SUM(b.quantity) FROM {TABLE_BLOODDONATION} bd
+    #             INNER JOIN {TABLE_DONOR} d
+    #             INNER JOIN {TABLE_BLOODTYPE} bt
+    #             WHERE bd.usedBy IS NULL
+    #             GROUP BY b.branchId, bt.type;
+    #     ''')
+    #     inventories = BloodInventory.fromTupleList(self._cursor.fetchall())
+    #     return inventories
+
+    def getBloodInventoryByBranchId(self, branchId):
+        '''Query blood inventory data
+        Returns: list of tuple(branchId, blood type, quantity)
+        '''
+        self._cursor.execute(f'''
+            SELECT b.branchId, bt.type, SUM(b.quantity) FROM {TABLE_BLOODDONATION} b
+                INNER JOIN {TABLE_DONOR} d ON b.nric=d.nric
+                INNER JOIN {TABLE_BLOODTYPE} bt ON d.bloodTypeId=bt.id
+                WHERE b.usedBy IS NULL AND b.branchId=?
+                GROUP BY bt.type;
+        ''', (branchId,))
+        inventories = BloodInventory.fromTupleList(self._cursor.fetchall())
+        assert(len(inventories) == 1)
+        return inventories[0]
     

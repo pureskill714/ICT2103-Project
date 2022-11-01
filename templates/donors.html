@@ -224,11 +224,14 @@
         donorCard.find('.donor-card-name').text(donor.name);
         donorCard.find('.donor-card-dob').val(donor.dateOfBirth);
         donorCard.find('.donor-card-contact').val(donor.contactNo);
-        donorCard.find('.donor-card-bloodtype').val(donor.bloodType);
-        donorCard.find('.donor-card-registered').val(donor.registrationDate);
+        donorCard.find('.donor-card-bloodtype').text(donor.bloodType);
         donorCard.find('.edit-donor-btn').attr('data-donor-nric', donor.nric);
         donorCard.find('.view-donations-btn').attr('href', '/donations?q=' + donor.nric);
 
+        // If called from update donor, will not have registration date
+        if (donor.registrationDate) donorCard.find('.donor-card-registered').val(donor.registrationDate);
+
+        // Calculate age of donor
         let today = new Date();
         let dob = new Date(donor.dateOfBirth);
         let age = today.getFullYear() - dob.getFullYear();

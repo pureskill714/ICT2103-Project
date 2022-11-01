@@ -51,9 +51,9 @@ class MariaDBBackend:
             return None
         return User.fromTuple(res)
 
-    def getUserByUsername(self, username):
-        '''Query user by username'''
-        self._cursor.execute(f'SELECT * FROM {TABLE_USER} WHERE username=?', (username,))
+    def login(self, username, password):
+        '''User authentication. Return the user if successful or None'''
+        self._cursor.execute(f'SELECT * FROM {TABLE_USER} WHERE username=? AND password=?', (username, password))
         res = self._cursor.fetchone()
         if res is None:
             return None

@@ -39,8 +39,9 @@ class FirebaseBackend:
     def role_ref(self):
         return self.db.collection('role')
 
-    def getUserByUsername(self, username):
-        userDocs = self.users_ref.where('username', '==', username).get()
+    def login(self, username, password):
+        '''User authentication. Return the user if successful or None'''
+        userDocs = self.users_ref.where('username', '==', username).where('password', '==', password).get()
         if len(userDocs) == 1:
             doc = userDocs[0].to_dict()
             return User.fromDict(doc)

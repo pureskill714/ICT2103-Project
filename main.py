@@ -61,8 +61,8 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        user = db.getUserByUsername(form.username.data)
-        if user is not None and user.password == form.password.data:
+        user = db.login(form.username.data, form.password.data)
+        if user is not None:
             url = request.args.get('next')
             login_user(user)
             return redirect(url or url_for('home'))
@@ -156,6 +156,7 @@ def logout():
 @app.route('/query')
 @login_required
 def query():
+    '''Endpoint for AJAX query calls'''
     type = request.args.get('type')
 
     if type == 'donor':

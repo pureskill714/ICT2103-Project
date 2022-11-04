@@ -74,7 +74,6 @@ class FirebaseBackend:
         return None
 
        
-
     def getDonorDonations(self, nric: str):
         '''Query one donor's donation records'''
         donorDocs = self.donors_ref.where('nric', '==', nric)
@@ -82,8 +81,7 @@ class FirebaseBackend:
         donationDict = donationDocs[0].to_dict()
         return Donor.fromDict(donationDict)
     
-   
-       
+     
     def insertDonor(self, donor: Donor):
         data = {
             'nric':donor.nric,
@@ -181,21 +179,93 @@ class FirebaseBackend:
     def getBloodTypeId(self, bloodType):
         btDocs = self.bloodtypes_ref.where('type', '==', bloodType).get()
         btDict = btDocs[0].to_dict()
+        btDict['id'] = btDocs[0].id
         return btDict['id'] if btDict is not None else None
       
 
     def getDashboardStats(self):
-        # to fixed total avail blood
         donorDocs = self.donors_ref.get()
         requestDocs =self.bloodrequest_ref.where('fulfilled', '==', 0).get()
-       # donationDocs = self.db.collection_group(u'blooddonations').get()
-        res = (len(donorDocs),20,len(requestDocs))
+        #Get total blood donation quantity
+        bloodQuantityList = []
+        donationDocs = self.db.collection_group(u'blooddonations').get()
+        for doc in donationDocs:
+            donationDict = doc.to_dict()
+            bloodQuantity = int(donationDict["quantity"])
+            bloodQuantityList.append(bloodQuantity)
+            totalQuantity= sum(bloodQuantityList)
+        res = (len(donorDocs),totalQuantity,len(requestDocs))
         return res
         
     def getBloodInventoryByBranchId(self, branchId):
         '''Query blood inventory data
         Returns: BloodInventory
         '''
+        APtotalQuantity = 0
+        AMtotalQuantity = 0
+        BPtotalQuantity = 0
+        BMtotalQuantity = 0
+        ABPtotalQuantity = 0
+        ABMtotalQuantity = 0
+        OPtotalQuantity = 0
+        OMtotalQuantity = 0
+
+        APbloodQuantityList = []
+        AMbloodQuantityList = []
+        BPbloodQuantityList = []
+        BMbloodQuantityList = []
+        ABPbloodQuantityList = []
+        ABMbloodQuantityList = []
+        OPbloodQuantityList = []
+        OMbloodQuantityList = []
+
+        donationDocs = self.db.collection_group(u'blooddonations').where('branchId','==',str(branchId)).get()
+        for doc in donationDocs:
+            donationDict = doc.to_dict()
+            parentRef = doc.reference.parent.parent.get()
+            parentDict = parentRef.to_dict()
+            if parentDict['bloodType'] == 'A+':
+                APbloodQuantity = int(donationDict["quantity"])
+                APbloodQuantityList.append(APbloodQuantity)
+                APtotalQuantity= sum(APbloodQuantityList)
+            elif parentDict['bloodType'] == 'A-':
+                AMbloodQuantity = int(donationDict["quantity"])
+                AMbloodQuantityList.append(AMbloodQuantity)
+                AMtotalQuantity= sum(AMbloodQuantityList)
+            elif parentDict['bloodType'] == 'B+':
+                BPbloodQuantity = int(donationDict["quantity"])
+                BPbloodQuantityList.append(BPbloodQuantity)
+                BPtotalQuantity= sum(BPbloodQuantityList)
+            elif parentDict['bloodType'] == 'B-':
+                BMbloodQuantity = int(donationDict["quantity"])
+                BMbloodQuantityList.append(BMbloodQuantity)
+                BMtotalQuantity= sum(BMbloodQuantityList)
+            elif parentDict['bloodType'] == 'AB+':
+                ABPbloodQuantity = int(donationDict["quantity"])
+                ABPbloodQuantityList.append(ABPbloodQuantity)
+                ABPtotalQuantity= sum(ABPbloodQuantityList)
+            elif parentDict['bloodType'] == 'AB-':
+                ABMbloodQuantity = int(donationDict["quantity"])
+                ABMbloodQuantityList.append(ABMbloodQuantity)
+                ABMtotalQuantity= sum(ABMbloodQuantityList)
+            elif parentDict['bloodType'] == 'O+':
+                OPbloodQuantity = int(donationDict["quantity"])
+                OPbloodQuantityList.append(OPbloodQuantity)
+                OPtotalQuantity= sum(OPbloodQuantityList)
+            elif parentDict['bloodType'] == 'O-':
+                OMbloodQuantity = int(donationDict["quantity"])
+                OMbloodQuantityList.append(OMbloodQuantity)
+                OMtotalQuantity= sum(OMbloodQuantityList)
+
         inventory = BloodInventory(branchId)
-        inventory.storage['A+'] = 100
+        inventory.storage['A+'] = APtotalQuantity
+        inventory.storage['A-'] = AMtotalQuantity
+        inventory.storage['B+'] = BPtotalQuantity
+        inventory.storage['B-'] = BMtotalQuantity
+        inventory.storage['AB+'] = ABPtotalQuantity
+        inventory.storage['AB-'] = ABMtotalQuantity
+        inventory.storage['O+'] = OPtotalQuantity
+        inventory.storage['O-'] = OMtotalQuantity
         return inventory
+
+        

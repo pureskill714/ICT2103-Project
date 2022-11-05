@@ -26,11 +26,6 @@ class FirebaseBackend:
     @property
     def bloodrequest_ref(self):
         return self.db.collection('bloodrequest')
-
-    
-    @property
-    def branch_ref(self):
-        return self.db.collection('branch')
     
     @property
     def bloodtypes_ref(self):
@@ -121,10 +116,11 @@ class FirebaseBackend:
         for doc in donationDocs:
             donationDict = doc.to_dict()
             donationDict["id"] = doc.id
-            #Retrieve matching branch name 
-            branchDoc = self.branch_ref.document(str(donationDict["branchId"])).get()
-            branchDict = branchDoc.to_dict()
-            donationDict["branchName"] = branchDict["name"]
+            #Retrieve matching branch name
+            branchDoc = self.db.collection_group(u'branch').where('branchId', '==' , int(donationDict['branchId'])).get()
+            for docs in branchDoc:
+                branchDict = docs.to_dict()
+                donationDict["branchName"] = branchDict["name"]
             #Retrieve matching branch username 
             userDoc = self.users_ref.document(str(donationDict["recordedBy"])).get()
             userDict = userDoc.to_dict()
@@ -168,7 +164,7 @@ class FirebaseBackend:
 
     def getAllBranches(self):
         branchList = []
-        branchDocs = self.branch_ref.stream()
+        branchDocs = self.db.collection_group(u'branch').get()
         for doc in branchDocs:
             branchDict = doc.to_dict()
             branchDict["id"] = doc.id

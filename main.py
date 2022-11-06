@@ -52,14 +52,16 @@ def login():
         return redirect('/')
 
     form = LoginForm()
-    if form.validate_on_submit():
+
+    if request.method == 'POST':
         user = db.login(form.username.data, form.password.data)
         if user is not None:
             url = request.args.get('next')
             login_user(user)
             return redirect(url or url_for('home'))
         else:
-            flash("Username or Password incorrect. Please try again")
+            flash("Username or password incorrect.")
+
     return render_template('login.html', form=form)
 
 @app.route('/donors', methods= ['GET', 'POST'])

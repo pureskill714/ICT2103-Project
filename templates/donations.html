@@ -15,8 +15,8 @@
 
             <!-- Add donor form toggle -->
             <div class="mb-3">
-                <button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#add-donation-collapse"
-                    aria-expanded="false" aria-controls="add-donation-collapse">
+                <button class="btn btn-danger" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#add-donation-collapse" aria-expanded="false" aria-controls="add-donation-collapse">
                     <i class="bi bi-plus-lg me-2"></i>Add New Donation
                 </button>
             </div>
@@ -36,9 +36,6 @@
                                         <option value="{{ donor.nric }}">{{ donor.name }} ({{ donor.nric }})</option>
                                         {% endfor %}
                                     </select>
-                                    <div class="invalid-feedback">
-                                        Please select a blood type.
-                                    </div>
                                 </div>
 
                                 <div class="col-md-6 mb-3">
@@ -49,9 +46,6 @@
                                         <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.id }})</option>
                                         {% endfor %}
                                     </select>
-                                    <div class="invalid-feedback">
-                                        Valid branch is required.
-                                    </div>
                                 </div>
 
                                 <div class="col-sm-5 mb-3">
@@ -59,9 +53,6 @@
                                     <input type="number" class="form-control" name="quantity"
                                         placeholder="Enter blood quantity (ml)" min="200" max="1000" step="0.5"
                                         required>
-                                    <div class="invalid-feedback">
-                                        Valid quantity is required.
-                                    </div>
                                 </div>
 
                             </div>
@@ -120,16 +111,26 @@
 
         $.post('/donations?action=create', $(e.target).serialize(), (res) => {
             if (res.success) {
-                let donation = res.data;
+                $.ajax({
+                    url: `/query?type=donation&key=id&val=${res.data.id}`, success: (res) => {
+                        // Show newly added donation in table
+                        let donation = res.data;
+                        $(`<tr> <td>${res.data.id}</td>
+                                <td>${donation.nric}</td>
+                                <td>${donation.quantity}</td>
+                                <td>${donation.date}</td>
+                                <td>${donation.branchName}</td>
+                                <td>${donation.staffUsername}</td></tr>`)
+                            .insertBefore($('#donations tr').first());
 
-                // TODO: Show newly added donation in table
+                        // Reset and collapse form
+                        $(e.target).trigger('reset');
+                        $('#add-donation-collapse').collapse('hide');
 
-                // Reset and collapse form
-                $(e.target).trigger('reset');
-                $('#add-donation-collapse').collapse('hide');
+                        console.log('Add donation success', res);
+                    }
+                });
             }
-
-            console.log('Add donation success', res);
         });
     }
 

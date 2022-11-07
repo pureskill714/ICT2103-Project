@@ -84,6 +84,8 @@ class BloodDonation:
             'branchId': self.branchId,
             'recordedBy': self.recordedBy,
             'usedBy': self.usedBy,
+            'branchName': self.branchName,
+            'staffUsername': self.staffUsername,
         }
 
     def deserialize(self, data):
@@ -94,6 +96,8 @@ class BloodDonation:
         self.branchId = data['branchId']
         self.recordedBy = data['recordedBy']
         self.usedBy = data['usedBy']
+        self.branchName = data['branchName']
+        self.staffUsername = data['staffUsername']
 
 class BloodRequest:
     def __init__(self, id, requesterId, bloodTypeId, quantity, date, address, status, fulfilled, requester = None, bloodType = None):

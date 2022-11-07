@@ -120,6 +120,17 @@ class MariaDBBackend:
         self._cursor.execute(statement)
         return [BloodDonation.fromTuple(bd) for bd in self._cursor.fetchall()]
 
+    def getDonationById(self, id):
+        '''Query list of all blood donations'''
+        statement = f'''
+            SELECT bd.*, b.name, u.username FROM {TABLE_BLOODDONATION} bd
+            INNER JOIN {TABLE_BRANCH} b ON bd.branchId=b.id
+            INNER JOIN {TABLE_USER} u ON bd.recordedBy=u.id
+            WHERE bd.id=?
+        '''
+        self._cursor.execute(statement, (id,))
+        return BloodDonation.fromTuple(self._cursor.fetchone())
+
     def getAvailableDonationsByBloodType(self, bloodType: str):
         '''Query donation records not yet used for request fulfillment by blood type'''
         self._cursor.execute(f'''

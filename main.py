@@ -41,9 +41,7 @@ class LoginForm(FlaskForm):
 @app.route('/')
 @login_required
 def home():
-    donorCount, availBlood, requests = db.getDashboardStats()
-    bloodInventory = db.getBloodInventoryByBranchId(current_user.branchId)
-    data = DashboardData(donorCount, availBlood, requests, bloodInventory.storage)
+    data = db.getDashboardStats(current_user.branchId)
     return render_template('dashboard_staff.html', data=data)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -89,9 +87,9 @@ def donors():
                 # /donor?action=delete
                 db.deleteDonorByNRIC(nric)
             db.commit()
-            return jsonify(success=True, data=vars(donor))
+            return jsonify(success=True, data=donor.serialize())
         except Exception as e:
-            return jsonify(success=False, error=e.message)
+            return jsonify(success=False)
 
     
     donors = db.getAllDonors()
@@ -111,28 +109,30 @@ def donations():
         try:
             action = request.args.get('action')
             if action is None or action == 'create':
-                # /donations?action=delete
+                # /donations?action=create
                 donation.date = datetime.now()
-                db.insertDonation(donation)
+                donation.id = db.insertDonation(donation)
             elif action == 'delete':
                 # /donations?action=delete
                 # To implement
                 pass
             db.commit()
-            return jsonify(success=True, data=vars(donation))
+            return jsonify(success=True, data=donation.serialize())
         except Exception as e:
-            return jsonify(success=False, error=e.message)
+            return jsonify(success=False)
 
     donors = db.getAllDonors()
-    donations = db.getAllBloodDonations()
+    donations = db.getAllDonations()
     branches = db.getAllBranches()
     return render_template('donations.html', donors = donors, donations = donations, branches = branches)
 
 @app.route('/requests')
 @login_required
 def requests():
-    requests = db.getAllBloodRequests()
-    return render_template('requests.html', requests = requests)
+    requests = db.getAllRequests()
+    pending = filter(lambda r: not r.fulfilled, requests)
+    complete = filter(lambda r: r.fulfilled, requests)
+    return render_template('requests.html', pending = pending, complete = complete)
 
 @app.route('/branches')
 @login_required
@@ -152,13 +152,24 @@ def logout():
 def query():
     '''Endpoint for AJAX query calls'''
     type = request.args.get('type')
+    key = request.args.get('key')
+    val = request.args.get('val')
 
     if type == 'donor':
-        key = request.args.get('key')
         if key == 'nric':
-            val = request.args.get('val')
             donor = db.getDonorByNRIC(val)
-            return jsonify(success=True, data=vars(donor))
+            return jsonify(success=True, data=donor.serialize())
+
+    elif type == 'donation':
+        if key == 'bloodType':
+            donations = db.getAvailableDonationsByBloodType(val)
+            return jsonify(success=True, data=[d.serialize() for d in donations])
+
+    elif type == 'request':
+        if key == 'id':
+            req = db.getRequestById(val)
+            return jsonify(success=True, data=req.serialize())
+
     return jsonify(success=False, error='Bad query')
 
 if __name__ == '__main__':

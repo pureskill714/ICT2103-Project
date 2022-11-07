@@ -143,7 +143,7 @@
         <div class="modal-content">
             <form id="edit-donor-form">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Donor</h1>
+                    <h1 class="modal-title fs-5">Edit Donor</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -243,7 +243,7 @@
     function addDonorHandler(e) {
         e.preventDefault();
         $('#add-donor-status').removeClass('d-none'); // Show the loading spinner
-        $.post('/donors', $(e.target).serialize(), (res) => {
+        $.post('/donors?action=create', $(e.target).serialize(), (res) => {
             if (res.success) {
                 $('#add-donor-status').addClass('d-none'); // Hide the loading spinner
 

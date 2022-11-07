@@ -12,8 +12,7 @@
     <div class="flex-grow-1 py-3 content">
         <div class="container">
             <h3>Requests (Pending)</h3>
-            {% for request in requests %}
-            {% if not request.fulfilled %}
+            {% for request in pending %}
             {% if loop.index % 2 == 1 %}
             <div class="row row-cols-2 g-2">
                 {% endif %}
@@ -37,8 +36,7 @@
                                         Address: {{ request.address }}
                                     </p>
                                     <div class="d-flex justify-content-end gap-2">
-                                        <a href="#" class="btn btn-danger">Accept</a>
-                                        <a href="#" class="btn btn-outline-danger">Reject</a>
+                                        <a class="btn btn-danger manage-request-btn" data-request-id="{{ request.id }}">Manage</a>
                                     </div>
                                 </div>
                             </div>
@@ -48,12 +46,10 @@
                 {% if loop.index % 2 == 0 %}
             </div>
             {% endif %}
-            {% endif %}
             {% endfor %}
 
             <h3>Requests (Completed)</h3>
-            {% for request in requests %}
-            {% if request.fulfilled %}
+            {% for request in complete %}
             {% if loop.index % 2 == 1 %}
             <div class="row row-cols-2 g-2">
                 {% endif %}
@@ -84,9 +80,95 @@
                 {% if loop.index % 2 == 0 %}
             </div>
             {% endif %}
-            {% endif %}
             {% endfor %}
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="manage-request-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form id="manage-request-form">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="request-modal-header">Request #</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="nric" class="form-label">Requester</label>
+                            <input type="text" class="form-control" id="request-modal-requester" name="nric"
+                                placeholder="Enter NRIC" required readonly>
+                        </div>
+
+                        <div class="col-sm-6 mb-3">
+                            <label for="name" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="request-modal-address" name="name"
+                                placeholder="Enter name" required readonly>
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label for="fulfillDonations[]" class="form-label">Choose the donations used to fulfill this
+                                request</label>
+                            <select class="form-select" id="request-fulfill-donations" name="fulfillDonations[]"
+                                multiple="multiple">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <div>
+                        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Reject</button>
+                    </div>
+                    <div class="align-self-end">
+                        <button type="submit" class="btn btn-danger">Confirm</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block bodyend %}
+<!-- Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(() => {
+        $('#request-fulfill-donations').select2({
+            dropdownParent: $("#manage-request-modal"),
+            width: '100%'
+        });
+
+        $('.manage-request-btn').click((e) => {
+            let requestId = $(e.target).data('request-id');
+            $.ajax({
+                url: `/query?type=request&key=id&val=${requestId}`, success: (res) => {
+                    $('#request-modal-header').text(`Manage Request (#${requestId})`);
+
+                    $('#request-modal-requester').val(res.data.requester);
+                    $('#request-modal-address').val(res.data.address);
+
+                    console.log(res.data);
+
+                    $.ajax({
+                        url: `/query?type=donation&key=bloodType&val=${encodeURI(res.data.bloodType)}`, success: (res) => {
+                            $('#request-fulfill-donations').empty();
+                            res.data.forEach(donation => {
+                                let elem = `<option value='${donation.id}'>#${donation.id} (${donation.quantity}ml)</option>`;
+                                $('#request-fulfill-donations').append(elem);
+                            });
+
+                            console.log(res.data);
+
+                            $('#manage-request-modal').modal('show');
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

@@ -2,7 +2,7 @@
 import google.cloud.firestore_v1 as gcloudfirestore
 from firebase_admin import credentials, firestore, initialize_app
 
-from database.models import BloodDonation, BloodInventory, BloodRequest, Branch, Donor, User
+from database.models import BloodDonation, BloodInventory, BloodRequest, Branch, DashboardData, Donor, User
 from datetime import datetime
 
 class FirebaseBackend:
@@ -110,7 +110,7 @@ class FirebaseBackend:
             self.donors_ref.document(donorDocs[0].id).delete()   
 
 
-    def getAllBloodDonations(self):
+    def getAllDonations(self):
         donationList = []
         donationDocs = self.db.collection_group(u'blooddonations').get()
         for doc in donationDocs:
@@ -144,7 +144,7 @@ class FirebaseBackend:
         self.donors_ref.document(donorDict['id']).collection('blooddonations').add(data)
      
        
-    def getAllBloodRequests(self):
+    def getAllRequests(self):
         '''Query list of all blood requests'''
         bloodRequestList = []
         bloodRequestDocs = self.bloodrequest_ref.stream()
@@ -179,7 +179,7 @@ class FirebaseBackend:
         return btDict['id'] if btDict is not None else None
       
 
-    def getDashboardStats(self):
+    def getDashboardStats(self, branchId):
         donorDocs = self.donors_ref.get()
         requestDocs =self.bloodrequest_ref.where('fulfilled', '==', 0).get()
         #Get total blood donation quantity
@@ -190,7 +190,8 @@ class FirebaseBackend:
             bloodQuantity = int(donationDict["quantity"])
             bloodQuantityList.append(bloodQuantity)
             totalQuantity= sum(bloodQuantityList)
-        res = (len(donorDocs),totalQuantity,len(requestDocs))
+        inventory = self.getBloodInventoryByBranchId(branchId)
+        res = DashboardData(len(donorDocs),totalQuantity,len(requestDocs), inventory.storage)
         return res
         
     def getBloodInventoryByBranchId(self, branchId):

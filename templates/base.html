@@ -39,8 +39,9 @@
         dayjs.extend(window.dayjs_plugin_utc);
         dayjs.extend(window.dayjs_plugin_timezone);
 
-        const parseDateAsLocalTime = (date) => dayjs(date).tz("Asia/Singapore", true);
+        const parseDateTimeAsLocal = (date) => dayjs(date).tz("Asia/Singapore", true);
         const printDateTime = (date) => date.format("DD MMM YYYY, hh:mm a");
+        const printDate = (date) => date.format("DD MMM YYYY");
     </script>
 
     {% block bodyend %}{% endblock %}

@@ -71,7 +71,7 @@ def donors():
         dateOfBirth = request.form.get('dateOfBirth')
         contactNo = request.form.get('contactNo')
         bloodType = request.form.get('bloodType')
-        donor = Donor(nric, name, dateOfBirth, contactNo, bloodType, None)
+        donor = Donor(nric, name, datetime.fromisoformat(dateOfBirth), contactNo, bloodType, None)
 
         # Depending on the query string do the respective action
         try:
@@ -83,17 +83,17 @@ def donors():
             elif action == 'update':
                 # /donor?action=update
                 db.updateDonor(donor)
+                donor = db.getDonorByNRIC(donor.nric)
             elif action == 'delete':
                 # /donor?action=delete
                 db.deleteDonorByNRIC(nric)
             db.commit()
             return jsonify(success=True, data=donor.serialize())
         except Exception as e:
+            print(e)
             return jsonify(success=False)
 
-    
-    donors = db.getAllDonors()
-    return render_template('donors.html', donors = donors, today=datetime.now())
+    return render_template('donors.html')
 
 @app.route('/donations', methods= ['GET', 'POST'])
 @login_required
@@ -121,7 +121,9 @@ def donations():
         except Exception as e:
             return jsonify(success=False)
 
-    return render_template('donations.html')
+    donors = db.getAllDonors()
+    branches = db.getAllBranches()
+    return render_template('donations.html', donors=donors, branches=branches)
 
 @app.route('/requests')
 @login_required
@@ -153,7 +155,10 @@ def query():
     val = request.args.get('val')
 
     if type == 'donor':
-        if key == 'nric':
+        if key == 'all':
+            donors = db.getAllDonors()
+            return jsonify(success=True, data=[d.serialize() for d in donors])
+        elif key == 'nric':
             donor = db.getDonorByNRIC(val)
             return jsonify(success=True, data=donor.serialize())
 

@@ -88,51 +88,7 @@
             </form>
 
             <!-- Donor list -->
-            {% for donor in donors %}
-            {% if request.args.get('q', '') in donor.nric or request.args.get('q', '') in donor.name %}
-            <div class="card mb-3 donor-card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="donor-card-nric">{{ donor.nric }}</span>
-                    <div>
-                        <a href="{{ '/donations?q=' + donor.nric }}" class="btn btn-danger view-donations-btn"><i
-                                class="bi bi-arrow-through-heart-fill me-2"></i>View Donations</a>
-                        <a class="btn btn-danger edit-donor-btn" data-donor-nric="{{ donor.nric }}">
-                            <i class="bi bi-pencil-square me-2"></i>Edit</a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title mb-2">
-                        <span class="donor-card-name">{{ donor.name }}</span>
-                    </h5>
-                    <div class="card-text">
-                        <div class="mb-2">
-                            <span class="badge bg-danger donor-card-bloodtype">{{ donor.bloodType }}</span>
-                            <span class="badge rounded-pill bg-secondary donor-card-age">{{ today.year -
-                                donor.dateOfBirth.year
-                                }}yo</span>
-                        </div>
-                        <div class="d-flex justify-content-center gap-3">
-                            <div class="input-group">
-                                <span class="input-group-text">Contact</span>
-                                <input type="text" class="form-control donor-card-contact" value="{{ donor.contactNo }}"
-                                    readonly />
-                            </div>
-                            <div class="input-group">
-                                <span class="input-group-text">DOB</span>
-                                <input type="text" class="form-control donor-card-dob" value="{{ donor.dateOfBirth }}"
-                                    readonly />
-                            </div>
-                            <div class="input-group">
-                                <span class="input-group-text">Registered</span>
-                                <input type="text" class="form-control donor-card-registered"
-                                    value="{{ donor.registrationDate.date() }}" readonly />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-            {% endfor %}
+            <div id="donors"></div>
         </div>
     </div>
 </div>
@@ -199,12 +155,67 @@
                 </div>
             </form>
         </div>
-    </div>
+    </div>\}\}
 </div>
 {% endblock %}
 
 {% block bodyend %}
 <script>
+    const donorCardTemplate = (donor) => $(`
+    <div class="card mb-3 donor-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="donor-card-nric">${donor.nric}</span>
+            <div>
+                <a href="${'/donations?q=' + donor.nric}" class="btn btn-danger view-donations-btn"><i
+                        class="bi bi-arrow-through-heart-fill me-2"></i>View Donations</a>
+                <a class="btn btn-danger edit-donor-btn" data-donor-nric="${donor.nric}">
+                    <i class="bi bi-pencil-square me-2"></i>Edit</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title mb-2">
+                <span class="donor-card-name">${donor.name}</span>
+            </h5>
+            <div class="card-text">
+                <div class="mb-2">
+                    <span class="badge bg-danger donor-card-bloodtype">${donor.bloodType}</span>
+                    <span class="badge rounded-pill bg-secondary donor-card-age">${Math.floor(dayjs().diff(dayjs(donor.dateOfBirth), 'month') / 12)}yo</span>
+                </div>
+                <div class="d-flex justify-content-center gap-3">
+                    <div class="input-group">
+                        <span class="input-group-text">Contact</span>
+                        <input type="text" class="form-control donor-card-contact" value="${donor.contactNo}"
+                            readonly />
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text">DOB</span>
+                        <input type="text" class="form-control donor-card-dob" value="${printDate(parseDateTimeAsLocal(donor.dateOfBirth))}"
+                            readonly />
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text">Registered</span>
+                        <input type="text" class="form-control donor-card-registered"
+                            value="${printDate(parseDateTimeAsLocal(donor.registrationDate))}" readonly />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>`);
+
+    function populateDonorList(finish) {
+        $.ajax({
+            url: '/query?type=donor&key=all', success: (res) => {
+                let donors = res.data;
+                $('#donors').empty(); // Clear child items
+                donors.forEach(d => $('#donors').append(donorCardTemplate(d)));
+
+                if (finish) {
+                    finish();
+                }
+            }
+        })
+    }
+
     function editButtonHandler(e) {
         $.ajax({
             url: `/query?type=donor&key=nric&val=${$(e.target).data('donor-nric')}`, success: (res) => {
@@ -219,27 +230,6 @@
         });
     }
 
-    function populateDonorCard(donorCard, donor) {
-        donorCard.find('.donor-card-nric').text(donor.nric);
-        donorCard.find('.donor-card-name').text(donor.name);
-        donorCard.find('.donor-card-dob').val(donor.dateOfBirth);
-        donorCard.find('.donor-card-contact').val(donor.contactNo);
-        donorCard.find('.donor-card-bloodtype').text(donor.bloodType);
-        donorCard.find('.edit-donor-btn').attr('data-donor-nric', donor.nric);
-        donorCard.find('.view-donations-btn').attr('href', '/donations?q=' + donor.nric);
-
-        // If called from update donor, will not have registration date
-        if (donor.registrationDate) donorCard.find('.donor-card-registered').val(donor.registrationDate);
-
-        // Calculate age of donor
-        let today = new Date();
-        let dob = new Date(donor.dateOfBirth);
-        let age = today.getFullYear() - dob.getFullYear();
-        let m = today.getMonth() - dob.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
-        donorCard.find('.donor-card-age').text(age.toString() + 'yo');
-    }
-
     function addDonorHandler(e) {
         e.preventDefault();
         $('#add-donor-status').removeClass('d-none'); // Show the loading spinner
@@ -247,21 +237,22 @@
             if (res.success) {
                 $('#add-donor-status').addClass('d-none'); // Hide the loading spinner
 
+                // Insert new donor as the first card
                 let newDonor = res.data;
-                // Copy paste the first donor card and edit
                 let first = $('.donor-card').first();
+                let donorCard = donorCardTemplate(newDonor);
                 if (first) {
-                    let copy = first.clone()
-                    copy.insertBefore(first);
-                    populateDonorCard(copy, newDonor);
+                    donorCard.insertBefore(first);
+                } else {
+                    $('#donors').append(donorCard);
                 }
 
                 // Reset and collapse form
                 $(e.target).trigger('reset');
                 $('#add-donor-collapse').collapse('hide');
-            }
 
-            console.log('Add donor success', res);
+                console.log('Add donor success', res);
+            }
         });
     }
 
@@ -274,13 +265,13 @@
 
                     $('.donor-card').each((i, elem) => {
                         if ($(elem).find('.donor-card-nric').text() === res.data.nric) {
-                            populateDonorCard($(elem), res.data);
+                            $(elem).replaceWith(donorCardTemplate(res.data));
                             return false; // Break the loop
                         }
                     });
-                }
 
-                console.log('Edit donor', res);
+                    console.log('Edit donor success', res);
+                }
             });
         }
     }
@@ -304,17 +295,19 @@
     }
 
     $(document).ready(() => {
-        // Populate the edit modal when edit is clicked
-        $('.edit-donor-btn').click(editButtonHandler);
+        populateDonorList(() => {
+            // Populate the edit modal when edit is clicked
+            $('.edit-donor-btn').click(editButtonHandler);
 
-        // Add donor form submit handler
-        $('#add-donor-form').submit(addDonorHandler);
+            // Add donor form submit handler
+            $('#add-donor-form').submit(addDonorHandler);
 
-        // Edit donor form submit button
-        $('#edit-donor-form').submit(editDonorHandler);
+            // Edit donor form submit button
+            $('#edit-donor-form').submit(editDonorHandler);
 
-        // Delete donor button
-        $('#delete-donor-btn').click(deleteDonorHandler);
+            // Delete donor button
+            $('#delete-donor-btn').click(deleteDonorHandler);
+        });
     });
 </script>
 {% endblock %}

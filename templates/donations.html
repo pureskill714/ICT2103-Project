@@ -78,13 +78,13 @@
                         <th>ID</th>
                         <th>Donor NRIC</th>
                         <th>Quantity</th>
-                        <th>Date No.</th>
+                        <th>Date and Time</th>
                         <th>Branch</th>
                         <th>Recorded By</th>
                     </tr>
                 </thead>
                 <tbody id="donations">
-                    {% for donation in donations %}
+                    <!-- {% for donation in donations %}
                     {% if request.args.get('q', '') in donation.nric or request.args.get('q', '') in donation.id |
                     string %}
                     <tr>
@@ -96,7 +96,7 @@
                         <td>{{ donation.staffUsername }}</td>
                     </tr>
                     {% endif %}
-                    {% endfor %}
+                    {% endfor %} -->
                 </tbody>
             </table>
         </div>
@@ -106,6 +106,15 @@
 
 {% block bodyend %}
 <script>
+    const donationTemplate = (d) => $(`
+        <tr><td>${d.id}</td>
+            <td>${d.nric}</td>
+            <td>${d.quantity}</td>
+            <td>${printDateTime(parseDateAsLocalTime(d.date))}</td>
+            <td>${d.branchName}</td>
+            <td>${d.staffUsername}</td>
+        </tr>`);
+
     function addDonationHandler(e) {
         e.preventDefault();
 
@@ -113,15 +122,8 @@
             if (res.success) {
                 $.ajax({
                     url: `/query?type=donation&key=id&val=${res.data.id}`, success: (res) => {
-                        // Show newly added donation in table
-                        let donation = res.data;
-                        $(`<tr> <td>${res.data.id}</td>
-                                <td>${donation.nric}</td>
-                                <td>${donation.quantity}</td>
-                                <td>${donation.date}</td>
-                                <td>${donation.branchName}</td>
-                                <td>${donation.staffUsername}</td></tr>`)
-                            .insertBefore($('#donations tr').first());
+                        // Insert newly added donation as the first item.
+                        donationTemplate(res.data).insertBefore($('#donations tr').first());
 
                         // Reset and collapse form
                         $(e.target).trigger('reset');
@@ -134,8 +136,20 @@
         });
     }
 
+    function populateDonationList() {
+        $.ajax({
+            url: '/query?type=donation&key=all', success: (res) => {
+                let donations = res.data;
+                $('#donations').empty(); // Clear child items
+                donations.forEach(d => $('#donations').append(donationTemplate(d)));
+            }
+        })
+    }
+
     $(document).ready(() => {
         $('#add-donation-form').submit(addDonationHandler);
+
+        populateDonationList();
     });
 </script>
 {% endblock %}

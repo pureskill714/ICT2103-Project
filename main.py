@@ -121,10 +121,7 @@ def donations():
         except Exception as e:
             return jsonify(success=False)
 
-    donors = db.getAllDonors()
-    donations = db.getAllDonations()
-    branches = db.getAllBranches()
-    return render_template('donations.html', donors = donors, donations = donations, branches = branches)
+    return render_template('donations.html')
 
 @app.route('/requests')
 @login_required
@@ -161,7 +158,10 @@ def query():
             return jsonify(success=True, data=donor.serialize())
 
     elif type == 'donation':
-        if key == 'bloodType':
+        if key == 'all':
+            donations = db.getAllDonations()
+            return jsonify(success=True, data=[d.serialize() for d in donations])
+        elif key == 'bloodType':
             donations = db.getAvailableDonationsByBloodType(val)
             return jsonify(success=True, data=[d.serialize() for d in donations])
         elif key == 'id':

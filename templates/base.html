@@ -31,6 +31,18 @@
         integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
         crossorigin="anonymous"></script>
 
+    <!-- DayJS and plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.6/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.6/plugin/utc.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.6/plugin/timezone.js"></script>
+    <script>
+        dayjs.extend(window.dayjs_plugin_utc);
+        dayjs.extend(window.dayjs_plugin_timezone);
+
+        const parseDateAsLocalTime = (date) => dayjs(date).tz("Asia/Singapore", true);
+        const printDateTime = (date) => date.format("DD MMM YYYY, hh:mm a");
+    </script>
+
     {% block bodyend %}{% endblock %}
 </body>
 

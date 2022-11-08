@@ -129,14 +129,40 @@ class FirebaseBackend:
         return donationList
 
     def getDonationById(self, id):
-        '''Query list of all blood donations'''
-        pass
+        # '''Query list of all blood donations'''
+        donationList = []
+        donationDocs = self.db.collection_group(u'blooddonations').get()
+        for doc in donationDocs:
+            donationDict = doc.to_dict()
+            donationDict["id"] = doc.id
+            if donationList["id"] == id:  
+                return BloodRequest.fromDict(donationDict)
     
 
     def getAvailableDonationsByBloodType(self, bloodType: str):
+        #TO BE FIXED CANNOT FILTER BY BLOODTYPE
         '''Query donation records not yet used for request fulfillment by blood type'''
-        pass
-
+        donationList = []
+        donationDocs = self.db.collection_group(u'blooddonations').where('usedBy','==',None).get()
+        for doc in donationDocs:
+            donationDict = doc.to_dict()
+            donationDict["id"] = doc.id
+            branchDoc = self.db.collection_group(u'branch').where('branchId', '==' , int(donationDict['branchId'])).get()
+            for docs in branchDoc:
+                branchDict = docs.to_dict()
+                donationDict["branchName"] = branchDict["name"]
+            #Retrieve matching branch username 
+            userDoc = self.users_ref.document(str(donationDict["recordedBy"])).get()
+            userDict = userDoc.to_dict()
+            donationDict["staffUsername"] = userDict["username"]
+            #filter by bloodtype
+            parentRef = doc.reference.parent.parent.get()
+            parentDict = parentRef.to_dict()
+            if parentDict['bloodType'] == bloodType:
+                donationList.append(BloodDonation.fromDict(donationDict))
+        return donationList
+                
+                
 
     def insertDonation(self, donation: BloodDonation):
         #get donor id
@@ -149,7 +175,8 @@ class FirebaseBackend:
             'branchId':donation.branchId,
             'date':donation.date,
             'quantity':donation.quantity,
-            'recordedBy':donation.recordedBy } 
+            'recordedBy':donation.recordedBy,
+            'usedBy': None} 
         self.donors_ref.document(donorDict['id']).collection('blooddonations').add(data)
      
        
@@ -167,13 +194,28 @@ class FirebaseBackend:
             #Retrieve matching branch username 
             userDoc = self.users_ref.document(str(bloodRequestDict["requesterId"])).get()
             userDict = userDoc.to_dict()
-            bloodRequestDict["requestorUsername"] = userDict["username"]
+            bloodRequestDict["requester"] = userDict["username"]
             bloodRequestList.append(BloodRequest.fromDict(bloodRequestDict))
         return bloodRequestList
 
     def getRequestById(self, id):
         '''Query blood requests by request id'''
-        pass
+        bloodRequestList = []
+        bloodRequestDocs = self.bloodrequest_ref.stream()
+        for doc in bloodRequestDocs:
+            bloodRequestDict = doc.to_dict()
+            bloodRequestDict["id"] = doc.id
+            if bloodRequestDict["id"] == id:
+                #Retrieve matching bloodtype name 
+                bloodTypeDoc = self.bloodtypes_ref.document(str(bloodRequestDict["bloodTypeId"])).get()
+                bloodTypeDict = bloodTypeDoc.to_dict()
+                bloodRequestDict["bloodType"] = bloodTypeDict["type"]
+                #Retrieve matching branch username 
+                userDoc = self.users_ref.document(str(bloodRequestDict["requesterId"])).get()
+                userDict = userDoc.to_dict()
+                bloodRequestDict["requester"] = userDict["username"]
+                return BloodRequest.fromDict(bloodRequestDict)
+        
 
 
     def getAllBranches(self):

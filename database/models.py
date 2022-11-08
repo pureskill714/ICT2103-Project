@@ -76,7 +76,10 @@ class BloodDonation:
 
     @staticmethod
     def fromTuple(data):
-        return BloodDonation(*data) # Unpack tuple
+        return BloodDonation(*data) # Unpack 
+        
+    def fromDict(data):
+        return BloodDonation(data["id"], data["nric"], data["quantity"], data["date"], data["branchId"], data["recordedBy"],data["usedBy"],data["branchName"], data["staffUsername"])
 
     def serialize(self):
         return {
@@ -124,7 +127,17 @@ class BloodRequest:
         return BloodRequest(*data) # Unpack tuple
 
     def fromDict(data):
-        return BloodRequest(data["id"], data["requesterId"], data["bloodTypeId"],data["quantity"],data["date"], data["address"], data["status"], data["fulfilled"])
+        return BloodRequest(
+            data["id"], 
+            data["requesterId"], 
+            data["bloodTypeId"],
+            data["quantity"],
+            data["date"], 
+            data["address"], 
+            data["status"], 
+            data["fulfilled"], 
+            data["requester"], 
+            data["bloodType"])
 
     def serialize(self):
         return {

@@ -36,7 +36,8 @@
                                         Address: {{ request.address }}
                                     </p>
                                     <div class="d-flex justify-content-end gap-2">
-                                        <a class="btn btn-danger manage-request-btn" data-request-id="{{ request.id }}">Manage</a>
+                                        <a class="btn btn-danger manage-request-btn"
+                                            data-request-id="{{ request.id }}">Manage</a>
                                     </div>
                                 </div>
                             </div>
@@ -85,6 +86,7 @@
     </div>
 </div>
 
+<!-- Manage request modal -->
 <div class="modal fade" id="manage-request-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -109,10 +111,18 @@
 
                         <div class="col-md-12 mb-3">
                             <label for="fulfillDonations[]" class="form-label">Choose the donations used to fulfill this
-                                request</label>
-                            <select class="form-select" id="request-fulfill-donations" name="fulfillDonations[]"
+                                request.
+                                <span id="request-modal-bloodhint"></span>
+                            </label>
+                            <select class="form-select" id="request-modal-donations" name="fulfillDonations[]"
                                 multiple="multiple">
                             </select>
+                        </div>
+
+                        <div class="col-md-12 mb-6">
+                            Tags:
+                            <span class="badge bg-danger" id="request-modal-bloodtype">Blood type</span>
+                            <span class="badge bg-danger" id="request-modal-quantity">Quantity</span>
                         </div>
                     </div>
                 </div>
@@ -121,7 +131,7 @@
                         <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Reject</button>
                     </div>
                     <div class="align-self-end">
-                        <button type="submit" class="btn btn-danger">Confirm</button>
+                        <button type="submit" class="btn btn-danger" id="request-modal-fulfill-btn">Fulfill</button>
                     </div>
                 </div>
             </form>
@@ -136,38 +146,75 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    $(document).ready(() => {
-        $('#request-fulfill-donations').select2({
-            dropdownParent: $("#manage-request-modal"),
-            width: '100%'
-        });
+    const donationSelectHintTemplate = (amt) => {
+        if (amt > 0) return `<span class="text-danger" id="request-modal-bloodhint">You still need <span class="text-danger">${amt}</span>ml of blood.</span>`;
+        return '<span class="text-success" id="request-modal-bloodhint">You have enough blood to fulfill this request.</span>';
+    };
 
+    const donationSelectOptionTemplate = (donation) => $(`<option value='${donation.id}' data-quantity='${donation.quantity}'>#${donation.id} (${donation.quantity}ml)</option>`);
+
+    function donationSelectionChanged() {
+        let requestQty = $('#request-modal-donations').data('request-quantity');
+        let selectedQty = 0;
+        $('#request-modal-donations').find(':selected').each((i, elem) => {
+            let qty = parseInt($(elem).data('quantity'));
+            selectedQty += qty;
+        });
+        let remainingQty = requestQty - selectedQty;
+        $('#request-modal-bloodhint').replaceWith(donationSelectHintTemplate(remainingQty));
+
+        console.log(remainingQty);
+        let fulfillBtn = $('#request-modal-fulfill-btn');
+        if (remainingQty <= 0 && fulfillBtn.hasClass('disabled')) {
+            fulfillBtn.removeClass('disabled');
+        } else if (remainingQty > 0 && !fulfillBtn.hasClass('disabled')) {
+            fulfillBtn.addClass('disabled');
+        }
+    }
+
+    $(document).ready(() => {
+        // Setup multiselect box
+        $('#request-modal-donations').select2({
+            dropdownParent: $("#manage-request-modal"), width: '100%'
+        });
+        $('#request-modal-donations').on('select2:select', donationSelectionChanged);
+        $('#request-modal-donations').on('select2:unselect', donationSelectionChanged);
+
+        // Manage request button
         $('.manage-request-btn').click((e) => {
             let requestId = $(e.target).data('request-id');
             $.ajax({
                 url: `/query?type=request&key=id&val=${requestId}`, success: (res) => {
+                    // Fill up modal with request data
                     $('#request-modal-header').text(`Manage Request (#${requestId})`);
-
                     $('#request-modal-requester').val(res.data.requester);
                     $('#request-modal-address').val(res.data.address);
+                    $('#request-modal-bloodtype').text(res.data.bloodType);
+                    $('#request-modal-quantity').text(`${res.data.quantity}ml`);
 
-                    console.log(res.data);
+                    // Store blood quantity stated in request for calculation purpose
+                    $('#request-modal-donations').data('request-quantity', res.data.quantity);
+                    $('#request-modal-donations').val(null).trigger('change'); // Clear existing selection
+                    donationSelectionChanged();
 
+                    // Get available blood donations that match the request's blood type and populate the selection box
                     $.ajax({
                         url: `/query?type=donation&key=bloodType&val=${encodeURI(res.data.bloodType)}`, success: (res) => {
-                            $('#request-fulfill-donations').empty();
+                            $('#request-modal-donations').empty();
                             res.data.forEach(donation => {
-                                let elem = `<option value='${donation.id}'>#${donation.id} (${donation.quantity}ml)</option>`;
-                                $('#request-fulfill-donations').append(elem);
+                                $('#request-modal-donations').append(donationSelectOptionTemplate(donation));
                             });
-
-                            console.log(res.data);
 
                             $('#manage-request-modal').modal('show');
                         }
                     });
                 }
             });
+        });
+
+        $('#manage-request-form').submit((e) => {
+            e.preventDefault();
+            console.log($(e.target).serialize());
         });
     });
 </script>

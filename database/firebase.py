@@ -128,6 +128,15 @@ class FirebaseBackend:
             donationList.append(donationDict)
         return donationList
 
+    def getDonationById(self, id):
+        '''Query list of all blood donations'''
+        pass
+    
+
+    def getAvailableDonationsByBloodType(self, bloodType: str):
+        '''Query donation records not yet used for request fulfillment by blood type'''
+        pass
+
 
     def insertDonation(self, donation: BloodDonation):
         #get donor id
@@ -159,8 +168,13 @@ class FirebaseBackend:
             userDoc = self.users_ref.document(str(bloodRequestDict["requesterId"])).get()
             userDict = userDoc.to_dict()
             bloodRequestDict["requestorUsername"] = userDict["username"]
-            bloodRequestList.append(bloodRequestDict)
+            bloodRequestList.append(BloodRequest.fromDict(bloodRequestDict))
         return bloodRequestList
+
+    def getRequestById(self, id):
+        '''Query blood requests by request id'''
+        pass
+
 
     def getAllBranches(self):
         branchList = []

@@ -37,6 +37,9 @@ class Donor:
         '''Converts from relational DB format'''
         return Donor(*data) # Unpack tuple
 
+    def fromDict(data):
+        return Donor(data["nric"], data["name"], data["dateOfBirth"], data["contactNo"], data["bloodType"], data["registrationDate"])
+
     def serialize(self):
         return {
             'nric': self.nric,
@@ -119,6 +122,9 @@ class BloodRequest:
     @staticmethod
     def fromTuple(data):
         return BloodRequest(*data) # Unpack tuple
+
+    def fromDict(data):
+        return BloodRequest(data["id"], data["requesterId"], data["bloodTypeId"],data["quantity"],data["date"], data["address"], data["status"], data["fulfilled"])
 
     def serialize(self):
         return {

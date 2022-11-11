@@ -140,12 +140,9 @@ def requests():
                 db.commit()
             return jsonify(success=True)
         except Exception as e:
-            return jsonify(success=False)
+            return jsonify(success=False, error=str(e))
 
-    requests = db.getAllRequests()
-    pending = list(filter(lambda r: not r.fulfilled, requests))
-    complete = list(filter(lambda r: r.fulfilled, requests))
-    return render_template('requests.html', pending = pending, complete = complete)
+    return render_template('requests.html')
 
 @app.route('/branches')
 @login_required
@@ -186,8 +183,14 @@ def query():
         elif key == 'id':
             donation = db.getDonationById(val)
             return jsonify(success=True, data=donation.serialize())
+        elif key == 'usedBy':
+            donationIds = db.getDonationsIdsByRequestId(val)
+            return jsonify(success=True, data=donationIds)
 
     elif type == 'request':
+        if key == 'all':
+            requests = db.getAllRequests()
+            return jsonify(success=True, data=[r.serialize() for r in requests])
         if key == 'id':
             req = db.getRequestById(val)
             return jsonify(success=True, data=req.serialize())

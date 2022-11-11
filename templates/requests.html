@@ -11,77 +11,15 @@
     </div>
     <div class="flex-grow-1 py-3 content">
         <div class="container">
-            <h3>Requests (Pending)</h3>
-            {% for request in pending %}
-            {% if loop.index % 2 == 1 %}
-            <div class="row row-cols-2 g-2">
-                {% endif %}
-                <div class="col">
-                    <div class="card mb-3 request-card">
-                        <div class="row g-0">
-                            <div class="col-3 d-flex justify-content-center align-items-center">
-                                <img src="static/img/icons8-drop-of-blood-100.png" class="img-fluid rounded-start">
-                            </div>
-                            <div class="col-9">
-                                <div class="card-body ps-0">
-                                    <h5 class="card-title">REQUEST #{{ request.id }}</h5>
-                                    <div class="mb-1">
-                                        <span class="badge bg-secondary">{{ request.date }}</span>
-                                        <span class="badge bg-danger">{{ request.bloodType }}</span>
-                                        <span class="badge bg-danger">{{ request.quantity }}ml</span>
-                                    </div>
-                                    <p class="card-text mb-2">
-                                        Requester: {{ request.requester }}
-                                        <br />
-                                        Address: {{ request.address }}
-                                    </p>
-                                    <div class="d-flex justify-content-end gap-2">
-                                        <a class="btn btn-danger manage-request-btn"
-                                            data-request-id="{{ request.id }}">Manage</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% if loop.index % 2 == 0 or loop.index == pending|length %}
+            <div class="mb-3">
+                <h3>Requests (Pending)</h3>
+                <div class="row row-cols-2 g-2 request-list-pending"></div>
             </div>
-            {% endif %}
-            {% endfor %}
 
-            <h3>Requests (Completed)</h3>
-            {% for request in complete %}
-            {% if loop.index % 2 == 1 %}
-            <div class="row row-cols-2 g-2">
-                {% endif %}
-                <div class="col">
-                    <div class="card mb-3">
-                        <div class="row g-0">
-                            <div class="col-3 d-flex justify-content-center align-items-center">
-                                <img src="static/img/icons8-drop-of-blood-100.png" class="img-fluid rounded-start">
-                            </div>
-                            <div class="col-9">
-                                <div class="card-body ps-0">
-                                    <h5 class="card-title">REQUEST #{{ request.id }}</h5>
-                                    <div class="mb-1">
-                                        <span class="badge bg-secondary">{{ request.date }}</span>
-                                        <span class="badge bg-danger">{{ request.bloodType }}</span>
-                                        <span class="badge bg-danger">{{ request.quantity }}ml</span>
-                                    </div>
-                                    <p class="card-text mb-2">
-                                        Requester: {{ request.requester }}
-                                        <br />
-                                        Address: {{ request.address }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% if loop.index % 2 == 0 %}
+            <div>
+                <h3>Requests (Completed)</h3>
+                <div class="row row-cols-2 g-2 request-list-complete"></div>
             </div>
-            {% endif %}
-            {% endfor %}
         </div>
     </div>
 </div>
@@ -175,36 +113,103 @@
         }
     }
 
-    // function populateRequestCards() {
-    //     const requestPendingTemplate = (request) => $(`
-    //         <div class="card mb-3 request-card">
-    //             <div class="row g-0">
-    //                 <div class="col-3 d-flex justify-content-center align-items-center">
-    //                     <img src="static/img/icons8-drop-of-blood-100.png" class="img-fluid rounded-start">
-    //                 </div>
-    //                 <div class="col-9">
-    //                     <div class="card-body ps-0">
-    //                         <h5 class="card-title">REQUEST #${request.id}</h5>
-    //                         <div class="mb-1">
-    //                             <span class="badge bg-secondary">${request.date}</span>
-    //                             <span class="badge bg-danger">${request.bloodType}</span>
-    //                             <span class="badge bg-danger">${request.quantity}ml</span>
-    //                         </div>
-    //                         <p class="card-text mb-2">
-    //                             Requester: ${request.requester}
-    //                             <br />
-    //                             Address: ${request.address}
-    //                         </p>
-    //                         <div class="d-flex justify-content-end gap-2">
-    //                             <a class="btn btn-danger manage-request-btn">Manage</a>
-    //                         </div>
-    //                     </div>
-    //                 </div>
-    //             </div>
-    //         </div>`);
-    // }
+    function populateRequestCards() {
+        const manageBtnTemplate = (request) => `
+            <div class="d-flex justify-content-end gap-2">
+                <a class="btn btn-danger manage-request-btn" data-request-id="${request.id}">Manage</a>
+            </div>`;
+
+        const fulfillmentTemplate = () => `
+            <div class="d-flex justify-content-end gap-2">
+                
+            </div>`;
+
+        const requestTemplate = (request) => $(`
+            <div class="col">
+                <div class="card mb-1 request-card">
+                    <div class="row g-0">
+                        <div class="col-3 d-flex justify-content-center align-items-center">
+                            <img src="static/img/icons8-drop-of-blood-100.png" class="img-fluid rounded-start">
+                        </div>
+                        <div class="col-9">
+                            <div class="card-body ps-0">
+                                <h5 class="card-title">REQUEST #${request.id}</h5>
+                                <div class="mb-1">
+                                    <span class="badge bg-secondary">${printDate(parseDateTimeAsLocal(request.date))}</span>
+                                    <span class="badge bg-danger">${request.bloodType}</span>
+                                    <span class="badge bg-danger">${request.quantity}ml</span>
+                                </div>
+                                <p class="card-text mb-2">
+                                    Requester: ${request.requester}
+                                    <br />
+                                    Address: ${request.address}
+                                </p>
+                                ${!request.fulfilled ? manageBtnTemplate(request) : fulfillmentTemplate(request)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`);
+
+        $.ajax({
+            url: `/query?type=request&key=all`, success: (res) => {
+                let pendingList = $('.request-list-pending');
+                pendingList.empty();
+
+                let completedList = $('.request-list-complete');
+                completedList.empty();
+
+                res.data.forEach(request => {
+                    if (!request.fulfilled) {
+                        pendingList.append(requestTemplate(request));
+                    }
+                    else {
+                        completedList.append(requestTemplate(request));
+                    }
+                });
+
+                // Manage request button
+                $('.manage-request-btn').click((e) => {
+                    let requestId = $(e.target).data('request-id');
+                    $.ajax({
+                        url: `/query?type=request&key=id&val=${requestId}`, success: (res) => {
+                            // Fill up modal with request data
+                            $('#request-modal-header').text(`Manage Request (#${requestId})`);
+                            $('#request-modal-id').val(requestId);
+                            $('#request-modal-requester').val(res.data.requester);
+                            $('#request-modal-address').val(res.data.address);
+                            $('#request-modal-bloodtype').text(res.data.bloodType);
+                            $('#request-modal-quantity').text(`${res.data.quantity}ml`);
+
+                            // Store blood quantity stated in request for calculation purpose
+                            $('#request-modal-donations').data('request-quantity', res.data.quantity);
+                            $('#request-modal-donations').val(null).trigger('change'); // Clear existing selection
+                            donationSelectionChanged();
+
+                            // Get available blood donations that match the request's blood type and populate the selection box
+                            $.ajax({
+                                url: `/query?type=donation&key=bloodType&val=${encodeURIComponent(res.data.bloodType)}`, success: (res) => {
+                                    const donationSelectOptionTemplate = (donation) =>
+                                        $(`<option value='${donation.id}' data-quantity='${donation.quantity}'>#${donation.id} (${donation.quantity}ml)</option>`);
+
+                                    $('#request-modal-donations').empty();
+                                    res.data.forEach(donation => {
+                                        $('#request-modal-donations').append(donationSelectOptionTemplate(donation));
+                                    });
+
+                                    $('#manage-request-modal').modal('show');
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+        });
+    }
 
     $(document).ready(() => {
+        populateRequestCards();
+
         // Setup multiselect box
         $('#request-modal-donations').select2({
             dropdownParent: $("#manage-request-modal"), width: '100%'
@@ -212,52 +217,16 @@
         $('#request-modal-donations').on('select2:select', donationSelectionChanged);
         $('#request-modal-donations').on('select2:unselect', donationSelectionChanged);
 
-        // Manage request button
-        $('.manage-request-btn').click((e) => {
-            let requestId = $(e.target).data('request-id');
-            $.ajax({
-                url: `/query?type=request&key=id&val=${requestId}`, success: (res) => {
-                    // Fill up modal with request data
-                    $('#request-modal-header').text(`Manage Request (#${requestId})`);
-                    $('#request-modal-id').val(requestId);
-                    $('#request-modal-requester').val(res.data.requester);
-                    $('#request-modal-address').val(res.data.address);
-                    $('#request-modal-bloodtype').text(res.data.bloodType);
-                    $('#request-modal-quantity').text(`${res.data.quantity}ml`);
-
-                    // Store blood quantity stated in request for calculation purpose
-                    $('#request-modal-donations').data('request-quantity', res.data.quantity);
-                    $('#request-modal-donations').val(null).trigger('change'); // Clear existing selection
-                    donationSelectionChanged();
-
-                    // Get available blood donations that match the request's blood type and populate the selection box
-                    $.ajax({
-                        url: `/query?type=donation&key=bloodType&val=${encodeURI(res.data.bloodType)}`, success: (res) => {
-                            const donationSelectOptionTemplate = (donation) =>
-                                $(`<option value='${donation.id}' data-quantity='${donation.quantity}'>#${donation.id} (${donation.quantity}ml)</option>`);
-
-                            $('#request-modal-donations').empty();
-                            res.data.forEach(donation => {
-                                $('#request-modal-donations').append(donationSelectOptionTemplate(donation));
-                            });
-
-                            $('#manage-request-modal').modal('show');
-                        }
-                    });
-                }
-            });
-        });
-
         $('#manage-request-form').submit((e) => {
             e.preventDefault();
 
             $.post({
                 url: `/requests?action=fulfill`, data: $(e.target).serialize(), success: (res) => {
-                    $('.request-card');
+                    populateRequestCards();
+
+                    $('#manage-request-modal').modal('hide');
                 }
             });
-
-            console.log($(e.target).serialize(), reqId);
         });
     });
 </script>

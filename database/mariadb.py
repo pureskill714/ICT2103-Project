@@ -121,7 +121,7 @@ class MariaDBBackend:
         return [BloodDonation.fromTuple(bd) for bd in self._cursor.fetchall()]
 
     def getDonationById(self, id):
-        '''Query list of all blood donations'''
+        '''Query one blood donation by id'''
         statement = f'''
             SELECT bd.*, b.name, u.username FROM {TABLE_BLOODDONATION} bd
             INNER JOIN {TABLE_BRANCH} b ON bd.branchId=b.id
@@ -130,6 +130,15 @@ class MariaDBBackend:
         '''
         self._cursor.execute(statement, (id,))
         return BloodDonation.fromTuple(self._cursor.fetchone())
+
+    def getDonationsIdsByRequestId(self, id):
+        '''Query all blood donation ids used to fulfill the request with given id.'''
+        statement = f'''
+            SELECT id FROM {TABLE_BLOODDONATION}
+            WHERE id=?
+        '''
+        self._cursor.execute(statement, (id,))
+        return [r[0] for r in self._cursor.fetchall()]
 
     def getAvailableDonationsByBloodType(self, bloodType: str):
         '''Query donation records not yet used for request fulfillment by blood type'''
@@ -173,14 +182,15 @@ class MariaDBBackend:
         ''', (id,))
         return BloodRequest.fromTuple(self._cursor.fetchone())
 
-    def fulfillRequest(self, requestId: int, donationIds: list):
+    def fulfillRequest(self, requestId: str, donationIds: list[str]):
         ''''''
         statement = f'''
             UPDATE {TABLE_BLOODDONATION}
             SET usedBy=?
-            WHERE id in (?)
+            WHERE id in ({','.join(['?'] * len(donationIds))})
         '''
-        self._cursor.execute(statement, (requestId, donationIds))
+        data = tuple((int(requestId),)) + tuple(map(int, donationIds))
+        self._cursor.execute(statement, data)
 
         statement = f'''
             UPDATE {TABLE_BLOODREQUEST}

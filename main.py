@@ -20,8 +20,8 @@ login_manager.login_view = 'login'
 login_manager.login_message = ''
 
 # Setup database (only use one of them)
-db = MariaDBBackend()
-#db = FirebaseBackend()
+#db = MariaDBBackend()
+db = FirebaseBackend()
 
 # This callback is used by flask login to load the user object from the user id stored in the session
 @login_manager.user_loader

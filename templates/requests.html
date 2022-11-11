@@ -17,7 +17,7 @@
             <div class="row row-cols-2 g-2">
                 {% endif %}
                 <div class="col">
-                    <div class="card mb-3">
+                    <div class="card mb-3 request-card">
                         <div class="row g-0">
                             <div class="col-3 d-flex justify-content-center align-items-center">
                                 <img src="static/img/icons8-drop-of-blood-100.png" class="img-fluid rounded-start">
@@ -31,7 +31,7 @@
                                         <span class="badge bg-danger">{{ request.quantity }}ml</span>
                                     </div>
                                     <p class="card-text mb-2">
-                                        Requester: {{ request.requestorUsername }}
+                                        Requester: {{ request.requester }}
                                         <br />
                                         Address: {{ request.address }}
                                     </p>
@@ -44,7 +44,7 @@
                         </div>
                     </div>
                 </div>
-                {% if loop.index % 2 == 0 %}
+                {% if loop.index % 2 == 0 or loop.index == pending|length %}
             </div>
             {% endif %}
             {% endfor %}
@@ -69,7 +69,7 @@
                                         <span class="badge bg-danger">{{ request.quantity }}ml</span>
                                     </div>
                                     <p class="card-text mb-2">
-                                        Requester: {{ request.requestorUsername }}
+                                        Requester: {{ request.requester }}
                                         <br />
                                         Address: {{ request.address }}
                                     </p>
@@ -97,16 +97,21 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
+                        <div class="col-md-12 mb-3 visually-hidden">
+                            <label for="request-modal-id" class="form-label">Req #</label>
+                            <input type="text" class="form-control" id="request-modal-id" name="id" required readonly>
+                        </div>
+
                         <div class="col-sm-6">
-                            <label for="nric" class="form-label">Requester</label>
-                            <input type="text" class="form-control" id="request-modal-requester" name="nric"
-                                placeholder="Enter NRIC" required readonly>
+                            <label for="request-modal-requester" class="form-label">Requester</label>
+                            <input type="text" class="form-control" id="request-modal-requester" name="nric" required
+                                readonly>
                         </div>
 
                         <div class="col-sm-6 mb-3">
                             <label for="name" class="form-label">Address</label>
-                            <input type="text" class="form-control" id="request-modal-address" name="name"
-                                placeholder="Enter name" required readonly>
+                            <input type="text" class="form-control" id="request-modal-address" name="name" required
+                                readonly>
                         </div>
 
                         <div class="col-md-12 mb-3">
@@ -151,8 +156,6 @@
         return '<span class="text-success" id="request-modal-bloodhint">You have enough blood to fulfill this request.</span>';
     };
 
-    const donationSelectOptionTemplate = (donation) => $(`<option value='${donation.id}' data-quantity='${donation.quantity}'>#${donation.id} (${donation.quantity}ml)</option>`);
-
     function donationSelectionChanged() {
         let requestQty = $('#request-modal-donations').data('request-quantity');
         let selectedQty = 0;
@@ -163,7 +166,7 @@
         let remainingQty = requestQty - selectedQty;
         $('#request-modal-bloodhint').replaceWith(donationSelectHintTemplate(remainingQty));
 
-        console.log(remainingQty);
+        // Enable or disable fulfill button depending on whether request is fulfilled
         let fulfillBtn = $('#request-modal-fulfill-btn');
         if (remainingQty <= 0 && fulfillBtn.hasClass('disabled')) {
             fulfillBtn.removeClass('disabled');
@@ -171,6 +174,35 @@
             fulfillBtn.addClass('disabled');
         }
     }
+
+    // function populateRequestCards() {
+    //     const requestPendingTemplate = (request) => $(`
+    //         <div class="card mb-3 request-card">
+    //             <div class="row g-0">
+    //                 <div class="col-3 d-flex justify-content-center align-items-center">
+    //                     <img src="static/img/icons8-drop-of-blood-100.png" class="img-fluid rounded-start">
+    //                 </div>
+    //                 <div class="col-9">
+    //                     <div class="card-body ps-0">
+    //                         <h5 class="card-title">REQUEST #${request.id}</h5>
+    //                         <div class="mb-1">
+    //                             <span class="badge bg-secondary">${request.date}</span>
+    //                             <span class="badge bg-danger">${request.bloodType}</span>
+    //                             <span class="badge bg-danger">${request.quantity}ml</span>
+    //                         </div>
+    //                         <p class="card-text mb-2">
+    //                             Requester: ${request.requester}
+    //                             <br />
+    //                             Address: ${request.address}
+    //                         </p>
+    //                         <div class="d-flex justify-content-end gap-2">
+    //                             <a class="btn btn-danger manage-request-btn">Manage</a>
+    //                         </div>
+    //                     </div>
+    //                 </div>
+    //             </div>
+    //         </div>`);
+    // }
 
     $(document).ready(() => {
         // Setup multiselect box
@@ -187,6 +219,7 @@
                 url: `/query?type=request&key=id&val=${requestId}`, success: (res) => {
                     // Fill up modal with request data
                     $('#request-modal-header').text(`Manage Request (#${requestId})`);
+                    $('#request-modal-id').val(requestId);
                     $('#request-modal-requester').val(res.data.requester);
                     $('#request-modal-address').val(res.data.address);
                     $('#request-modal-bloodtype').text(res.data.bloodType);
@@ -200,6 +233,9 @@
                     // Get available blood donations that match the request's blood type and populate the selection box
                     $.ajax({
                         url: `/query?type=donation&key=bloodType&val=${encodeURI(res.data.bloodType)}`, success: (res) => {
+                            const donationSelectOptionTemplate = (donation) =>
+                                $(`<option value='${donation.id}' data-quantity='${donation.quantity}'>#${donation.id} (${donation.quantity}ml)</option>`);
+
                             $('#request-modal-donations').empty();
                             res.data.forEach(donation => {
                                 $('#request-modal-donations').append(donationSelectOptionTemplate(donation));
@@ -214,7 +250,14 @@
 
         $('#manage-request-form').submit((e) => {
             e.preventDefault();
-            console.log($(e.target).serialize());
+
+            $.post({
+                url: `/requests?action=fulfill`, data: $(e.target).serialize(), success: (res) => {
+                    $('.request-card');
+                }
+            });
+
+            console.log($(e.target).serialize(), reqId);
         });
     });
 </script>

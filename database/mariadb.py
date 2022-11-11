@@ -173,6 +173,22 @@ class MariaDBBackend:
         ''', (id,))
         return BloodRequest.fromTuple(self._cursor.fetchone())
 
+    def fulfillRequest(self, requestId: int, donationIds: list):
+        ''''''
+        statement = f'''
+            UPDATE {TABLE_BLOODDONATION}
+            SET usedBy=?
+            WHERE id in (?)
+        '''
+        self._cursor.execute(statement, (requestId, donationIds))
+
+        statement = f'''
+            UPDATE {TABLE_BLOODREQUEST}
+            SET status=?, fulfilled=?
+            WHERE id=?
+        '''
+        self._cursor.execute(statement, ('Delivered', 1, requestId))
+
     def getAllBranches(self):
         '''Query list of all blood bank branches'''
         self._cursor.execute(f'SELECT * FROM {TABLE_BRANCH}')

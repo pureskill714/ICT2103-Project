@@ -76,7 +76,7 @@ def donors():
         # Depending on the query string do the respective action
         try:
             action = request.args.get('action')
-            if action is None or action == 'create':
+            if action == 'create':
                 # /donor?action=create
                 donor.registrationDate = datetime.now()
                 db.insertDonor(donor)
@@ -108,7 +108,7 @@ def donations():
         # Depending on the query string do the respective action
         try:
             action = request.args.get('action')
-            if action is None or action == 'create':
+            if action == 'create':
                 # /donations?action=create
                 donation.date = datetime.now()
                 donation.id = db.insertDonation(donation)
@@ -125,12 +125,26 @@ def donations():
     branches = db.getAllBranches()
     return render_template('donations.html', donors=donors, branches=branches)
 
-@app.route('/requests')
+@app.route('/requests', methods= ['GET', 'POST'])
 @login_required
 def requests():
+    if request.method == 'POST':
+        try:
+            action = request.args.get('action')
+            if action == 'fulfill':
+                # The request we are fulfilling
+                requestId = request.form.get('id')
+                # Donations used to fulfill this request
+                donationIds = request.form.getlist('fulfillDonations[]')
+                db.fulfillRequest(requestId, donationIds)
+                db.commit()
+            return jsonify(success=True)
+        except Exception as e:
+            return jsonify(success=False)
+
     requests = db.getAllRequests()
-    pending = filter(lambda r: not r.fulfilled, requests)
-    complete = filter(lambda r: r.fulfilled, requests)
+    pending = list(filter(lambda r: not r.fulfilled, requests))
+    complete = list(filter(lambda r: r.fulfilled, requests))
     return render_template('requests.html', pending = pending, complete = complete)
 
 @app.route('/branches')

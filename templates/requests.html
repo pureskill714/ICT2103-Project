@@ -133,7 +133,7 @@
                         </div>
                         <div class="col-9">
                             <div class="card-body ps-0">
-                                <h5 class="card-title">REQUEST #${request.id}</h5>
+                                <h5 class="card-title">REQUEST #${request.id.substring(0, 5)}</h5>
                                 <div class="mb-1">
                                     <span class="badge bg-secondary">${printDate(parseDateTimeAsLocal(request.date))}</span>
                                     <span class="badge bg-danger">${request.bloodType}</span>

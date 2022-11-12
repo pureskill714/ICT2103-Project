@@ -18,10 +18,8 @@ USE `bloodmanagementsystem` ;
 -- -----------------------------------------------------
 -- Table `bloodmanagementsystem`.`BloodType`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `bloodmanagementsystem`.`BloodType` ;
-
 CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`BloodType` (
-  `id` INT NOT NULL,
+  `id` INT UNSIGNED NOT NULL,
   `type` VARCHAR(3) NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
@@ -30,32 +28,29 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `bloodmanagementsystem`.`Donor`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `bloodmanagementsystem`.`Donor` ;
-
 CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`Donor` (
-  `nric` CHAR(10) NULL,
+  `nric` CHAR(10) NOT NULL,
   `name` VARCHAR(50) NOT NULL,
   `dateOfBirth` DATE NOT NULL,
   `contactNo` VARCHAR(20) NOT NULL,
-  `bloodTypeId` INT NOT NULL,
+  `bloodTypeId` INT UNSIGNED NOT NULL,
   `registrationDate` DATETIME NOT NULL DEFAULT CURRENT_DATE(),
   PRIMARY KEY (`nric`),
-  INDEX `fk_Donor_1_idx` (`bloodTypeId` ASC) VISIBLE,
-  CONSTRAINT `fk_Donor_1`
+  CONSTRAINT `fk_Donor_BloodType_id`
     FOREIGN KEY (`bloodTypeId`)
     REFERENCES `bloodmanagementsystem`.`BloodType` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
+
+CREATE INDEX `IDX_Donor_BloodType_id` ON `bloodmanagementsystem`.`Donor` (`bloodTypeId` ASC) VISIBLE;
 
 
 -- -----------------------------------------------------
 -- Table `bloodmanagementsystem`.`Branch`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `bloodmanagementsystem`.`Branch` ;
-
 CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`Branch` (
-  `id` INT NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(100) NOT NULL,
   `address` VARCHAR(200) NOT NULL,
   `postalCode` CHAR(6) NOT NULL,
@@ -66,10 +61,8 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `bloodmanagementsystem`.`Role`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `bloodmanagementsystem`.`Role` ;
-
 CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`Role` (
-  `id` INT NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
@@ -78,102 +71,106 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `bloodmanagementsystem`.`User`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `bloodmanagementsystem`.`User` ;
-
 CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`User` (
-  `id` INT NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(45) NOT NULL,
   `password` VARCHAR(64) NOT NULL,
   `name` VARCHAR(50) NOT NULL,
-  `branchId` INT NULL,
-  `roleId` INT NOT NULL,
+  `branchId` INT UNSIGNED NULL,
+  `roleId` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_User_1_idx` (`branchId` ASC) VISIBLE,
-  INDEX `fk_User_2_idx` (`roleId` ASC) VISIBLE,
-  INDEX `login_idx` (`username` ASC, `password` ASC) VISIBLE,
-  CONSTRAINT `fk_Users_1`
+  CONSTRAINT `FK_User_Branch_id`
     FOREIGN KEY (`branchId`)
     REFERENCES `bloodmanagementsystem`.`Branch` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_User_1`
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+  CONSTRAINT `FK_User_Role_id`
     FOREIGN KEY (`roleId`)
     REFERENCES `bloodmanagementsystem`.`Role` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
+
+CREATE INDEX `IDX_User_Branch_id` ON `bloodmanagementsystem`.`User` (`branchId` ASC) VISIBLE;
+
+CREATE INDEX `IDX_User_Role_id` ON `bloodmanagementsystem`.`User` (`roleId` ASC) VISIBLE;
+
+CREATE INDEX `IDX_User_login` ON `bloodmanagementsystem`.`User` (`username` ASC, `password` ASC) VISIBLE;
 
 
 -- -----------------------------------------------------
 -- Table `bloodmanagementsystem`.`BloodRequest`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `bloodmanagementsystem`.`BloodRequest` ;
-
 CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`BloodRequest` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `requesterId` INT NOT NULL,
-  `bloodTypeId` INT NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `requesterId` INT UNSIGNED NOT NULL,
+  `bloodTypeId` INT UNSIGNED NOT NULL,
   `quantity` INT NOT NULL,
   `date` DATE NOT NULL,
   `address` VARCHAR(200) NOT NULL,
   `status` VARCHAR(100) NOT NULL,
   `fulfilled` TINYINT NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
-  INDEX `fk_BloodRequest_1_idx` (`bloodTypeId` ASC) VISIBLE,
-  INDEX `fk_BloodRequest_2_idx` (`requesterId` ASC) VISIBLE,
-  INDEX `fulfilled_idx` (`fulfilled` ASC) VISIBLE,
-  CONSTRAINT `fk_BloodRequest_1`
+  CONSTRAINT `FK_BloodRequest_BloodType_id`
     FOREIGN KEY (`bloodTypeId`)
     REFERENCES `bloodmanagementsystem`.`BloodType` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_BloodRequest_2`
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+  CONSTRAINT `FK_BloodRequest_User_id`
     FOREIGN KEY (`requesterId`)
     REFERENCES `bloodmanagementsystem`.`User` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
+
+CREATE INDEX `IDX_BloodRequest_BloodType_id` ON `bloodmanagementsystem`.`BloodRequest` (`bloodTypeId` ASC) VISIBLE;
+
+CREATE INDEX `IDX_BloodRequest_User_id` ON `bloodmanagementsystem`.`BloodRequest` (`requesterId` ASC) VISIBLE;
+
+CREATE INDEX `IDX_BloodRequest_fulfilled` ON `bloodmanagementsystem`.`BloodRequest` (`fulfilled` ASC) VISIBLE;
 
 
 -- -----------------------------------------------------
 -- Table `bloodmanagementsystem`.`BloodDonation`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `bloodmanagementsystem`.`BloodDonation` ;
-
 CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`BloodDonation` (
-  `id` INT NULL AUTO_INCREMENT,
+  `id` INT UNSIGNED NULL AUTO_INCREMENT,
   `nric` CHAR(10) NOT NULL,
   `quantity` INT UNSIGNED NOT NULL,
   `date` DATETIME NOT NULL,
-  `branchId` INT NOT NULL,
-  `recordedBy` INT NOT NULL,
-  `usedBy` INT NULL,
+  `branchId` INT UNSIGNED NOT NULL,
+  `recordedBy` INT UNSIGNED NULL,
+  `usedBy` INT UNSIGNED NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_BloodDonation_1_idx` (`nric` ASC) VISIBLE,
-  INDEX `fk_BloodDonation_2_idx` (`branchId` ASC) VISIBLE,
-  INDEX `fk_BloodDonation_3_idx` (`recordedBy` ASC) VISIBLE,
-  INDEX `fk_BloodDonation_4_idx` (`usedBy` ASC) VISIBLE,
-  CONSTRAINT `fk_BloodDonation_1`
+  CONSTRAINT `FK_BloodDonation_Donor_nric`
     FOREIGN KEY (`nric`)
     REFERENCES `bloodmanagementsystem`.`Donor` (`nric`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_BloodDonation_2`
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `FK_BloodDonation_Branch_id`
     FOREIGN KEY (`branchId`)
     REFERENCES `bloodmanagementsystem`.`Branch` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_BloodDonation_3`
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `FK_BloodDonation_User_id`
     FOREIGN KEY (`recordedBy`)
     REFERENCES `bloodmanagementsystem`.`User` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_BloodDonation_4`
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `FK_BloodDonation_BloodRequest_id`
     FOREIGN KEY (`usedBy`)
     REFERENCES `bloodmanagementsystem`.`BloodRequest` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
+
+CREATE INDEX `IDX_BloodDonation_Donor_nric` ON `bloodmanagementsystem`.`BloodDonation` (`nric` ASC) VISIBLE;
+
+CREATE INDEX `IDX_BloodDonation_Branch_id` ON `bloodmanagementsystem`.`BloodDonation` (`branchId` ASC) VISIBLE;
+
+CREATE INDEX `IDX_BloodDonation_User_id` ON `bloodmanagementsystem`.`BloodDonation` (`recordedBy` ASC) VISIBLE;
+
+CREATE INDEX `IDX_BloodDonation_BloodRequest_id` ON `bloodmanagementsystem`.`BloodDonation` (`usedBy` ASC) VISIBLE;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
@@ -232,8 +229,8 @@ COMMIT;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `bloodmanagementsystem`;
-INSERT INTO `bloodmanagementsystem`.`Role` (`id`, `name`) VALUES (1, 'Blood Bank Staff');
-INSERT INTO `bloodmanagementsystem`.`Role` (`id`, `name`) VALUES (2, 'Healthcare Staff');
+INSERT INTO `bloodmanagementsystem`.`Role` (`id`, `name`) VALUES (1, 'role.staff.bloodbank');
+INSERT INTO `bloodmanagementsystem`.`Role` (`id`, `name`) VALUES (2, 'role.staff.healthcare');
 
 COMMIT;
 

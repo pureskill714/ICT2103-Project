@@ -1,13 +1,16 @@
 from datetime import datetime
-from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
-from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+
+from flask import (Flask, flash, jsonify, redirect, render_template, request,
+                   url_for)
+from flask_login import (LoginManager, current_user, login_required,
+                         login_user, logout_user)
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, SubmitField
+from wtforms import PasswordField, StringField
 from wtforms.validators import InputRequired, Length
 
-from database.mariadb import MariaDBBackend
 from database.firebase import FirebaseBackend
-from database.models import BloodDonation, DashboardData, Donor
+from database.mariadb import MariaDBBackend
+from database.models import BloodDonation, BloodRequest, DashboardData, Donor
 
 # Setup flask
 app = Flask(__name__) # Create an instance of the flask app and put in variable app
@@ -30,19 +33,19 @@ def load_user(user_id):
 
 # The form on the login page
 class LoginForm(FlaskForm):
-    username = StringField(validators=[InputRequired(),
-                                       Length(min=4, max=20)], render_kw={"placeholder": "Username"})
-
-    password = PasswordField(validators=[InputRequired(),
-                                         Length(min=4, max=20)], render_kw={"placeholder": "Password"})
-
-    submit = SubmitField("Login")
+    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
+    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
 
 @app.route('/')
 @login_required
 def home():
-    data = db.getDashboardStats(current_user.branchId)
-    return render_template('dashboard_staff.html', data=data)
+    if current_user.role == 'role.staff.bloodbank':
+        data = db.getDashboardStats(current_user.branchId)
+        return render_template('dashboard_staff.html', data=data)
+    elif current_user.role == 'role.staff.healthcare':
+        return redirect(url_for('bloodrequest'))
+    else:
+        return jsonify(message="You are not granted a role.")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -112,10 +115,6 @@ def donations():
                 # /donations?action=create
                 donation.date = datetime.now()
                 donation.id = db.insertDonation(donation)
-            elif action == 'delete':
-                # /donations?action=delete
-                # To implement
-                pass
             db.commit()
             return jsonify(success=True, data=donation.serialize())
         except Exception as e:
@@ -143,6 +142,25 @@ def requests():
             return jsonify(success=False, error=str(e))
 
     return render_template('requests.html')
+
+@app.route('/bloodrequest', methods= ['GET', 'POST'])
+@login_required
+def bloodrequest():
+    if request.method == 'POST':
+        try:
+            action = request.args.get('action')
+            if action == 'create':
+                bloodType = request.form.get('bloodType')
+                quantity = request.form.get('quantity')
+                address = request.form.get('address')
+                req = BloodRequest(None, current_user.id, bloodType, quantity, datetime.today(), address, "Pending", 0)
+                req.id = db.insertRequest(req)
+                db.commit()
+                return jsonify(success=True, data=req.serialize())
+        except Exception as e:
+            return jsonify(success=False, error=str(e))
+
+    return render_template('blood_request_form.html')
 
 @app.route('/branches')
 @login_required

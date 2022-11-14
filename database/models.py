@@ -4,20 +4,27 @@ from flask_login import UserMixin
 
 # Inheriting from UserMixin required for flask login
 class User(UserMixin):
-    def __init__(self, id, username, password, name, branchId, roleId):
+    def __init__(self, id, username, password, name, branchId, role):
         self.id = id
         self.username = username
         self.password = password
         self.name = name
         self.branchId = branchId
-        self.roleId = roleId
+        self.role = role
 
     @staticmethod
     def fromTuple(data):
         return User(*data) # Unpack tuple
 
-    def fromDict(data):
-        return User(data["id"], data["username"], data["password"], data["name"], data["branchId"], data["roleId"])
+    @staticmethod
+    def fromDict(data: dict):
+        id = data.get('id')
+        username = data.get('username')
+        password = data.get('password')
+        name = data.get('name')
+        branchId = data.get('branchId')
+        role = data.get('role')
+        return User(id, username, password, name, branchId, role)
 
 class Donor:
     def __init__(self, nric, name, dateOfBirth, contactNo, bloodType, registrationDate):
@@ -37,8 +44,15 @@ class Donor:
         '''Converts from relational DB format'''
         return Donor(*data) # Unpack tuple
 
-    def fromDict(data):
-        return Donor(data["nric"], data["name"], data["dateOfBirth"], data["contactNo"], data["bloodType"], data["registrationDate"])
+    @staticmethod
+    def fromDict(data: dict):
+        nric = data.get('nric')
+        name = data.get('name')
+        dateOfBirth = data.get('dateOfBirth')
+        contactNo = data.get('contactNo')
+        bloodType = data.get('bloodType')
+        registrationDate = data.get('registrationDate')
+        return Donor(nric, name, dateOfBirth, contactNo, bloodType, registrationDate)
 
     def serialize(self):
         return {
@@ -49,14 +63,6 @@ class Donor:
             'bloodType': self.bloodType,
             'registrationDate': self.registrationDate,
         }
-
-    def deserialize(self, data):
-        self.nric = data['nric']
-        self.name = data['name']
-        self.dateOfBirth = data['dateOfBirth']
-        self.contactNo = data['contactNo']
-        self.bloodType = data['registrationDate']
-        self.registrationDate = data['bloodType']
 
 class BloodDonation:
     def __init__(self, id, nric, quantity, date, branchId, recordedBy, usedBy, branchName = None, staffUsername = None):
@@ -77,9 +83,19 @@ class BloodDonation:
     @staticmethod
     def fromTuple(data):
         return BloodDonation(*data) # Unpack 
-        
+    
+    @staticmethod
     def fromDict(data):
-        return BloodDonation(data["id"], data["nric"], data["quantity"], data["date"], data["branchId"], data["recordedBy"],data["usedBy"],data["branchName"], data["staffUsername"])
+        id = data.get('id')
+        nric = data.get('nric')
+        quantity = data.get('quantity')
+        date = data.get('date')
+        branchId = data.get('branchId')
+        recordedBy = data.get('recordedBy')
+        usedBy = data.get('usedBy')
+        branchName = data.get('branchName')
+        staffUsername = data.get('staffUsername')
+        return BloodDonation(id, nric, quantity, date, branchId, recordedBy, usedBy, branchName, staffUsername)
 
     def serialize(self):
         return {
@@ -94,22 +110,11 @@ class BloodDonation:
             'staffUsername': self.staffUsername,
         }
 
-    def deserialize(self, data):
-        self.id = data['id']
-        self.nric = data['nric']
-        self.quantity = data['quantity']
-        self.date = data['date']
-        self.branchId = data['branchId']
-        self.recordedBy = data['recordedBy']
-        self.usedBy = data['usedBy']
-        self.branchName = data['branchName']
-        self.staffUsername = data['staffUsername']
-
 class BloodRequest:
-    def __init__(self, id, requesterId, bloodTypeId, quantity, date, address, status, fulfilled, requester = None, bloodType = None):
+    def __init__(self, id, requesterId, bloodType, quantity, date, address, status, fulfilled, requester = None):
         self.id = id
         self.requesterId = requesterId
-        self.bloodTypeId = bloodTypeId
+        self.bloodType = bloodType
         self.quantity = quantity
         self.date = date
         self.address = address
@@ -117,53 +122,40 @@ class BloodRequest:
         self.fulfilled = fulfilled
 
         self.requester = requester
-        self.bloodType = bloodType
 
-    def toTuple(self):
-        return (self.id, self.requesterId, self.bloodTypeId, self.quantity, self.date, self.address, self.status, self.fulfilled)
+    def toTuple(self, bloodTypeId):
+        return (self.id, self.requesterId, bloodTypeId, self.quantity, self.date, self.address, self.status, self.fulfilled)
 
     @staticmethod
     def fromTuple(data):
         return BloodRequest(*data) # Unpack tuple
 
-    def fromDict(data):
+    @staticmethod
+    def fromDict(data: dict):
         return BloodRequest(
-            data["id"], 
-            data["requesterId"], 
-            data["bloodTypeId"],
-            data["quantity"],
-            data["date"], 
-            data["address"], 
-            data["status"], 
-            data["fulfilled"], 
-            data["requester"], 
-            data["bloodType"])
+            data.get('id'), 
+            data.get('requesterId'), 
+            data.get('bloodType'),
+            data.get('quantity'),
+            data.get('date'), 
+            data.get('address'), 
+            data.get('status'), 
+            data.get('fulfilled'), 
+            data.get('requester'),
+        )
 
     def serialize(self):
         return {
             'id': self.id,
             'requesterId': self.requesterId,
-            'bloodTypeId': self.bloodTypeId,
+            'bloodType': self.bloodType,
             'quantity': self.quantity,
-            'date': self.date,
+            'date': self.date.isoformat(),
             'address': self.address,
             'status': self.status,
             'fulfilled': self.fulfilled,
             'requester': self.requester,
-            'bloodType': self.bloodType,
         }
-
-    def deserialize(self, data):
-        self.id = data['id']
-        self.requesterId = data['requesterId']
-        self.bloodTypeId = data['bloodTypeId']
-        self.quantity = data['quantity']
-        self.date = data['date']
-        self.address = data['address']
-        self.status = data['status']
-        self.fulfilled = data['fulfilled']
-        self.requester = data['requester']
-        self.bloodType = data['bloodType']
 
 class Branch:
     def __init__(self, id, name, address, postalCode):

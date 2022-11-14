@@ -51,7 +51,7 @@
                                 <div class="col-sm-5 mb-3">
                                     <label for="quantity" class="form-label">Quantity</label>
                                     <input type="number" class="form-control" name="quantity"
-                                        placeholder="Enter blood quantity (ml)" min="200" max="1000" step="0.5"
+                                        placeholder="Enter blood quantity (ml)" min="200" max="1000" step="1"
                                         required>
                                 </div>
 
@@ -107,9 +107,9 @@
 {% block bodyend %}
 <script>
     const donationTemplate = (d) => $(`
-        <tr><td>${d.id}</td>
+        <tr><td>${d.id.substring(0, 5)}</td>
             <td>${d.nric}</td>
-            <td>${d.quantity}</td>
+            <td>${d.quantity} (ml)</td>
             <td>${printDateTime(parseDateTimeAsLocal(d.date))}</td>
             <td>${d.branchName}</td>
             <td>${d.staffUsername}</td>

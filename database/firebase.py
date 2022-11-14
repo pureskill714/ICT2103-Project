@@ -185,14 +185,11 @@ class FirebaseBackend:
         for doc in bloodRequestDocs:
             bloodRequestDict = doc.to_dict()
             bloodRequestDict["id"] = doc.id
-            #Retrieve matching bloodtype name 
-            bloodTypeDoc = self.bloodtypes_ref.document(str(bloodRequestDict["bloodTypeId"])).get()
-            bloodTypeDict = bloodTypeDoc.to_dict()
-            bloodRequestDict["bloodType"] = bloodTypeDict["type"]
-            #Retrieve matching branch username 
+            # Convert date string to datetime
+            bloodRequestDict["date"] = datetime.fromisoformat(bloodRequestDict["date"])
             userDoc = self.users_ref.document(str(bloodRequestDict["requesterId"])).get()
-            userDict = userDoc.to_dict()
-            bloodRequestDict["requester"] = userDict["username"]
+            # Retrieve matching requester username 
+            bloodRequestDict["requester"] = userDoc.get('username')
             bloodRequestList.append(BloodRequest.fromDict(bloodRequestDict))
         return bloodRequestList
 

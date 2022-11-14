@@ -10,6 +10,7 @@ TABLE_BLOODDONATION = 'BloodDonation'
 TABLE_LABTEST = 'LabTest'
 TABLE_BLOODREQUEST = 'BloodRequest'
 TABLE_USER = 'User'
+TABLE_ROLE = 'Role'
 TABLE_BRANCH = 'Branch'
 
 class MariaDBBackend:
@@ -45,7 +46,11 @@ class MariaDBBackend:
 
     def getUserById(self, id):
         '''Query user by username'''
-        self._cursor.execute(f'SELECT * FROM {TABLE_USER} WHERE id=?', (id,))
+        self._cursor.execute(f'''
+            SELECT u.id, u.username, u.password, u.name, u.branchId, r.name FROM {TABLE_USER} u
+            INNER JOIN {TABLE_ROLE} r ON u.roleId=r.id
+            WHERE u.id=?
+        ''', (id,))
         res = self._cursor.fetchone()
         if res is None:
             return None
@@ -53,7 +58,11 @@ class MariaDBBackend:
 
     def login(self, username, password):
         '''User authentication. Return the user if successful or None'''
-        self._cursor.execute(f'SELECT * FROM {TABLE_USER} WHERE username=? AND password=?', (username, password))
+        self._cursor.execute(f'''
+            SELECT u.id, u.username, u.password, u.name, u.branchId, r.name FROM {TABLE_USER} u
+            INNER JOIN {TABLE_ROLE} r ON u.roleId=r.id
+            WHERE u.username=? AND u.password=?
+        ''', (username, password))
         res = self._cursor.fetchone()
         if res is None:
             return None
@@ -166,7 +175,8 @@ class MariaDBBackend:
     def getAllRequests(self):
         '''Query list of all blood requests'''
         self._cursor.execute(f'''
-            SELECT br.*, u.username, bt.type FROM {TABLE_BLOODREQUEST} br
+            SELECT br.id, br.requesterId, bt.type, bt.quantity, bt.date, bt.address, 
+                bt.status, bt.fulfilled, u.username FROM {TABLE_BLOODREQUEST} br
             INNER JOIN {TABLE_BLOODTYPE} bt ON br.bloodTypeId=bt.id
             INNER JOIN {TABLE_USER} u ON br.requesterId=u.id
         ''')
@@ -175,12 +185,27 @@ class MariaDBBackend:
     def getRequestById(self, id):
         '''Query blood requests by request id'''
         self._cursor.execute(f'''
-            SELECT br.*, u.username, bt.type FROM {TABLE_BLOODREQUEST} br
+            SELECT br.id, br.requesterId, bt.type, bt.quantity, bt.date, bt.address, 
+                bt.status, bt.fulfilled, u.username FROM {TABLE_BLOODREQUEST} br
             INNER JOIN {TABLE_BLOODTYPE} bt ON br.bloodTypeId=bt.id
             INNER JOIN {TABLE_USER} u ON br.requesterId=u.id
             WHERE br.id=?
         ''', (id,))
         return BloodRequest.fromTuple(self._cursor.fetchone())
+
+    def insertRequest(self, req: BloodRequest):
+        bloodTypeId = self.getBloodTypeId(req.bloodType)
+        statement = f'''
+            INSERT INTO {TABLE_BLOODREQUEST} (id, requesterId, bloodTypeId, quantity, date, address, status, fulfilled)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        '''
+        data = req.toTuple(bloodTypeId)
+        assert(len(data) == 8)
+        try:
+            self._cursor.execute(statement, data)
+            return self._cursor.lastrowid
+        except mariadb.Error as e:
+            print(f"Error inserting new blood request: {e}")
 
     def fulfillRequest(self, requestId: str, donationIds: list[str]):
         ''''''

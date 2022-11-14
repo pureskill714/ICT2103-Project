@@ -27,13 +27,6 @@ class FirebaseBackend:
     def bloodrequest_ref(self):
         return self.db.collection('bloodrequest')
     
-    @property
-    def bloodtypes_ref(self):
-        return self.db.collection('bloodtype')
-
-    @property
-    def role_ref(self):
-        return self.db.collection('role')
 
     def login(self, username, password):
         '''User authentication. Return the user if successful or None'''
@@ -195,24 +188,44 @@ class FirebaseBackend:
 
     def getRequestById(self, id):
         '''Query blood requests by request id'''
-        bloodRequestList = []
         bloodRequestDocs = self.bloodrequest_ref.stream()
         for doc in bloodRequestDocs:
             bloodRequestDict = doc.to_dict()
             bloodRequestDict["id"] = doc.id
             if bloodRequestDict["id"] == id:
-                #Retrieve matching bloodtype name 
-                bloodTypeDoc = self.bloodtypes_ref.document(str(bloodRequestDict["bloodTypeId"])).get()
-                bloodTypeDict = bloodTypeDoc.to_dict()
-                bloodRequestDict["bloodType"] = bloodTypeDict["type"]
+                # Convert date string to datetime
+                bloodRequestDict["date"] = datetime.fromisoformat(bloodRequestDict["date"])
                 #Retrieve matching branch username 
                 userDoc = self.users_ref.document(str(bloodRequestDict["requesterId"])).get()
                 userDict = userDoc.to_dict()
                 bloodRequestDict["requester"] = userDict["username"]
                 return BloodRequest.fromDict(bloodRequestDict)
+
+    def insertRequest(self, req: BloodRequest):
+        data = {
+            'address':req.address,
+            'bloodType':req.bloodType,
+            'date': str(req.date),
+            'fufilled':req.fulfilled,
+            'quantity':req.quantity,
+            'requesterId':req.requesterId,
+            'status':req.status} 
+        self.bloodrequest_ref.add(data)
         
+
     def fulfillRequest(self, requestId: str, donationIds: list[str]):
-        #to be figured out how to set request id to blood donations
+
+        donationDocs = self.db.collection_group(u'blooddonations').get()
+        for doc in donationDocs:
+            donationDict = doc.to_dict()
+            donationDict["id"] = doc.id
+            for ids in donationIds:
+                if donationDict["id"] == ids:
+                    parentRef = doc.reference.parent.parent.get()
+                    parentDict = parentRef.to_dict()
+                    parentDict['id'] = parentRef.id
+                    self.donors_ref.document(parentDict['id']).collection('blooddonations').document(donationDict['id']).update({'usedBy': requestId})         
+                
         self.bloodrequest_ref.document(requestId).update({'status':'Delivered','fulfilled':1})
     
     def getAllBranches(self):

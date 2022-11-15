@@ -6,9 +6,8 @@ from database.models import BloodDonation, BloodInventory, BloodRequest, Branch,
 
 TABLE_DONOR = 'Donor'
 TABLE_BLOODTYPE = 'BloodType'
-TABLE_BLOODDONATION = 'BloodDonation'
-TABLE_LABTEST = 'LabTest'
-TABLE_BLOODREQUEST = 'BloodRequest'
+TABLE_DONATION = 'BloodDonation'
+TABLE_REQUEST = 'BloodRequest'
 TABLE_USER = 'User'
 TABLE_ROLE = 'Role'
 TABLE_BRANCH = 'Branch'
@@ -54,7 +53,7 @@ class MariaDBBackend:
         res = self._cursor.fetchone()
         if res is None:
             return None
-        return User.fromTuple(res)
+        return User(*res)
 
     def login(self, username, password):
         '''User authentication. Return the user if successful or None'''
@@ -66,7 +65,7 @@ class MariaDBBackend:
         res = self._cursor.fetchone()
         if res is None:
             return None
-        return User.fromTuple(res)
+        return User(*res)
 
     def getAllDonors(self):
         '''Query list of all donors'''
@@ -76,7 +75,7 @@ class MariaDBBackend:
             ORDER BY d.nric
         '''
         self._cursor.execute(statement)
-        return [Donor.fromTuple(d) for d in self._cursor.fetchall()]
+        return [Donor(*d) for d in self._cursor.fetchall()]
 
     def getDonorByNRIC(self, nric: str):
         '''Query one donor by NRIC'''
@@ -89,7 +88,7 @@ class MariaDBBackend:
         res = self._cursor.fetchone()
         if res is None:
             return None
-        return Donor.fromTuple(res)
+        return Donor(*res)
 
     def insertDonor(self, donor: Donor):
         bloodTypeId = self.getBloodTypeId(donor.bloodType)
@@ -121,29 +120,31 @@ class MariaDBBackend:
     def getAllDonations(self):
         '''Query list of all blood donations'''
         statement = f'''
-            SELECT bd.*, b.name, u.username FROM {TABLE_BLOODDONATION} bd
+            SELECT bd.id, bd.nric, bd.quantity, bd.date, bd.branchId, bd.recordedBy, bd.usedBy, b.name, u.username
+                FROM {TABLE_DONATION} bd
             INNER JOIN {TABLE_BRANCH} b ON bd.branchId=b.id
             INNER JOIN {TABLE_USER} u ON bd.recordedBy=u.id
             ORDER BY bd.date DESC, bd.id
         '''
         self._cursor.execute(statement)
-        return [BloodDonation.fromTuple(bd) for bd in self._cursor.fetchall()]
+        return [BloodDonation(*bd) for bd in self._cursor.fetchall()]
 
     def getDonationById(self, id):
         '''Query one blood donation by id'''
         statement = f'''
-            SELECT bd.*, b.name, u.username FROM {TABLE_BLOODDONATION} bd
+            SELECT bd.id, bd.nric, bd.quantity, bd.date, bd.branchId, bd.recordedBy, bd.usedBy, b.name, u.username
+                FROM {TABLE_DONATION} bd
             INNER JOIN {TABLE_BRANCH} b ON bd.branchId=b.id
             INNER JOIN {TABLE_USER} u ON bd.recordedBy=u.id
             WHERE bd.id=?
         '''
         self._cursor.execute(statement, (id,))
-        return BloodDonation.fromTuple(self._cursor.fetchone())
+        return BloodDonation(*self._cursor.fetchone())
 
     def getDonationsIdsByRequestId(self, id):
         '''Query all blood donation ids used to fulfill the request with given id.'''
         statement = f'''
-            SELECT id FROM {TABLE_BLOODDONATION}
+            SELECT id FROM {TABLE_DONATION}
             WHERE id=?
         '''
         self._cursor.execute(statement, (id,))
@@ -152,16 +153,17 @@ class MariaDBBackend:
     def getAvailableDonationsByBloodType(self, bloodType: str):
         '''Query donation records not yet used for request fulfillment by blood type'''
         self._cursor.execute(f'''
-            SELECT bd.* FROM {TABLE_BLOODDONATION} bd
+            SELECT bd.id, bd.nric, bd.quantity, bd.date, bd.branchId, bd.recordedBy, bd.usedBy
+                FROM {TABLE_DONATION} bd
             INNER JOIN {TABLE_DONOR} d ON bd.nric=d.nric
             INNER JOIN {TABLE_BLOODTYPE} bt ON d.bloodTypeId=bt.id
             WHERE bd.usedBy IS NULL AND bt.type=? 
         ''', (bloodType,))
-        return [BloodDonation.fromTuple(d) for d in self._cursor.fetchall()]
+        return [BloodDonation(*d) for d in self._cursor.fetchall()]
 
     def insertDonation(self, donation: BloodDonation):
         statement = f'''
-            INSERT INTO {TABLE_BLOODDONATION} (id, nric, quantity, date, branchId, recordedBy)
+            INSERT INTO {TABLE_DONATION} (id, nric, quantity, date, branchId, recordedBy)
             VALUES (?, ?, ?, ?, ?, ?)
         '''
         data = donation.toTuple()
@@ -175,28 +177,28 @@ class MariaDBBackend:
     def getAllRequests(self):
         '''Query list of all blood requests'''
         self._cursor.execute(f'''
-            SELECT br.id, br.requesterId, bt.type, bt.quantity, bt.date, bt.address, 
-                bt.status, bt.fulfilled, u.username FROM {TABLE_BLOODREQUEST} br
+            SELECT br.id, br.requesterId, bt.type, br.quantity, br.date, br.address, 
+                br.status, br.fulfilled, u.username FROM {TABLE_REQUEST} br
             INNER JOIN {TABLE_BLOODTYPE} bt ON br.bloodTypeId=bt.id
             INNER JOIN {TABLE_USER} u ON br.requesterId=u.id
         ''')
-        return [BloodRequest.fromTuple(br) for br in self._cursor.fetchall()]
+        return [BloodRequest(*br) for br in self._cursor.fetchall()]
 
     def getRequestById(self, id):
         '''Query blood requests by request id'''
         self._cursor.execute(f'''
-            SELECT br.id, br.requesterId, bt.type, bt.quantity, bt.date, bt.address, 
-                bt.status, bt.fulfilled, u.username FROM {TABLE_BLOODREQUEST} br
+            SELECT br.id, br.requesterId, bt.type, br.quantity, br.date, br.address, 
+                br.status, br.fulfilled, u.username FROM {TABLE_REQUEST} br
             INNER JOIN {TABLE_BLOODTYPE} bt ON br.bloodTypeId=bt.id
             INNER JOIN {TABLE_USER} u ON br.requesterId=u.id
             WHERE br.id=?
         ''', (id,))
-        return BloodRequest.fromTuple(self._cursor.fetchone())
+        return BloodRequest(*self._cursor.fetchone())
 
     def insertRequest(self, req: BloodRequest):
         bloodTypeId = self.getBloodTypeId(req.bloodType)
         statement = f'''
-            INSERT INTO {TABLE_BLOODREQUEST} (id, requesterId, bloodTypeId, quantity, date, address, status, fulfilled)
+            INSERT INTO {TABLE_REQUEST} (id, requesterId, bloodTypeId, quantity, date, address, status, fulfilled)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         '''
         data = req.toTuple(bloodTypeId)
@@ -210,7 +212,7 @@ class MariaDBBackend:
     def fulfillRequest(self, requestId: str, donationIds: list[str]):
         ''''''
         statement = f'''
-            UPDATE {TABLE_BLOODDONATION}
+            UPDATE {TABLE_DONATION}
             SET usedBy=?
             WHERE id in ({','.join(['?'] * len(donationIds))})
         '''
@@ -218,7 +220,7 @@ class MariaDBBackend:
         self._cursor.execute(statement, data)
 
         statement = f'''
-            UPDATE {TABLE_BLOODREQUEST}
+            UPDATE {TABLE_REQUEST}
             SET status=?, fulfilled=?
             WHERE id=?
         '''
@@ -226,8 +228,8 @@ class MariaDBBackend:
 
     def getAllBranches(self):
         '''Query list of all blood bank branches'''
-        self._cursor.execute(f'SELECT * FROM {TABLE_BRANCH}')
-        return [Branch.fromTuple(br) for br in self._cursor.fetchall()]
+        self._cursor.execute(f'SELECT id, name, address, postalCode FROM {TABLE_BRANCH}')
+        return [Branch(*br) for br in self._cursor.fetchall()]
 
     def getBloodTypeId(self, bloodType):
         '''Query the id of a blood type (e.g. A+)'''
@@ -240,10 +242,10 @@ class MariaDBBackend:
         Returns: DashboardData(donor count, available blood, pending requests, blood inventory)
         '''
         self._cursor.execute(f'''
-            SELECT d.*, b.*, r.* FROM
+            SELECT d.donorCount, b.availableBlood, r.pendingCount FROM
                 (SELECT COUNT(nric) AS donorCount FROM {TABLE_DONOR}) as d,
-                (SELECT SUM(quantity) AS availableBlood FROM {TABLE_BLOODDONATION} WHERE usedBy IS NULL) as b,
-                (SELECT COUNT(id) AS pendingCount FROM {TABLE_BLOODREQUEST} WHERE fulfilled=0) as r;
+                (SELECT SUM(quantity) AS availableBlood FROM {TABLE_DONATION} WHERE usedBy IS NULL) as b,
+                (SELECT COUNT(id) AS pendingCount FROM {TABLE_REQUEST} WHERE fulfilled=0) as r;
         ''')
         donorCount, availableBlood, pendingCount = self._cursor.fetchone()
         inventory = self.getBloodInventoryByBranchId(branchId)
@@ -254,7 +256,7 @@ class MariaDBBackend:
         Returns: BloodInventory
         '''
         self._cursor.execute(f'''
-            SELECT b.branchId, bt.type, SUM(b.quantity) FROM {TABLE_BLOODDONATION} b
+            SELECT b.branchId, bt.type, SUM(b.quantity) FROM {TABLE_DONATION} b
                 INNER JOIN {TABLE_DONOR} d ON b.nric=d.nric
                 INNER JOIN {TABLE_BLOODTYPE} bt ON d.bloodTypeId=bt.id
                 WHERE b.usedBy IS NULL AND b.branchId=?

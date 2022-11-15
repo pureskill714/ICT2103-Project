@@ -51,8 +51,7 @@
                                 <div class="col-sm-5 mb-3">
                                     <label for="quantity" class="form-label">Quantity</label>
                                     <input type="number" class="form-control" name="quantity"
-                                        placeholder="Enter blood quantity (ml)" min="200" max="1000" step="1"
-                                        required>
+                                        placeholder="Enter blood quantity (ml)" min="200" max="1000" step="1" required>
                                 </div>
 
                             </div>
@@ -84,19 +83,6 @@
                     </tr>
                 </thead>
                 <tbody id="donations">
-                    <!-- {% for donation in donations %}
-                    {% if request.args.get('q', '') in donation.nric or request.args.get('q', '') in donation.id |
-                    string %}
-                    <tr>
-                        <td>{{ donation.id }}</td>
-                        <td>{{ donation.nric }}</td>
-                        <td>{{ donation.quantity }}</td>
-                        <td>{{ donation.date }}</td>
-                        <td>{{ donation.branchName }}</td>
-                        <td>{{ donation.staffUsername }}</td>
-                    </tr>
-                    {% endif %}
-                    {% endfor %} -->
                 </tbody>
             </table>
         </div>
@@ -107,7 +93,8 @@
 {% block bodyend %}
 <script>
     const donationTemplate = (d) => $(`
-        <tr><td>${d.id.substring(0, 5)}</td>
+        <tr>
+            <td>${d.id.toString().substring(0, 5)}</td>
             <td>${d.nric}</td>
             <td>${d.quantity} (ml)</td>
             <td>${printDateTime(parseDateTimeAsLocal(d.date))}</td>
@@ -141,6 +128,14 @@
             url: '/query?type=donation&key=all', success: (res) => {
                 let donations = res.data;
                 $('#donations').empty(); // Clear child items
+
+                // Show only those searched, if search value is given
+                var url = new URL(window.location.href);
+                var searchVal = url.searchParams.get('q'); // Search value
+                if (searchVal) {
+                    donations = donations.filter(d => d.nric.includes(searchVal) || d.id.toString().includes(searchVal));
+                }
+
                 donations.forEach(d => $('#donations').append(donationTemplate(d)));
             }
         })

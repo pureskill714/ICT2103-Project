@@ -203,10 +203,18 @@
     </div>`);
 
     function populateDonorList(finish) {
+
         $.ajax({
             url: '/query?type=donor&key=all', success: (res) => {
                 let donors = res.data;
                 $('#donors').empty(); // Clear child items
+                
+                // Show only those searched, if search value is given
+                var url = new URL(window.location.href);
+                var searchVal = url.searchParams.get('q'); // Search value
+                if (searchVal) {
+                    donors = donors.filter(d => d.nric.includes(searchVal) || d.name.includes(searchVal));
+                }
                 donors.forEach(d => $('#donors').append(donorCardTemplate(d)));
 
                 if (finish) {

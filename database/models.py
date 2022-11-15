@@ -13,10 +13,6 @@ class User(UserMixin):
         self.role = role
 
     @staticmethod
-    def fromTuple(data):
-        return User(*data) # Unpack tuple
-
-    @staticmethod
     def fromDict(data: dict):
         id = data.get('id')
         username = data.get('username')
@@ -79,10 +75,6 @@ class BloodDonation:
 
     def toTuple(self):
         return (self.id, self.nric, self.quantity, self.date, self.branchId, self.recordedBy)
-
-    @staticmethod
-    def fromTuple(data):
-        return BloodDonation(*data) # Unpack 
     
     @staticmethod
     def fromDict(data):
@@ -127,10 +119,6 @@ class BloodRequest:
         return (self.id, self.requesterId, bloodTypeId, self.quantity, self.date, self.address, self.status, self.fulfilled)
 
     @staticmethod
-    def fromTuple(data):
-        return BloodRequest(*data) # Unpack tuple
-
-    @staticmethod
     def fromDict(data: dict):
         return BloodRequest(
             data.get('id'), 
@@ -166,10 +154,6 @@ class Branch:
 
     def toTuple(self):
         return (self.id, self.name, self.address, self.postalCode)
-
-    @staticmethod
-    def fromTuple(data):
-        return Branch(*data) # Unpack tuple
 
 class DashboardData:
     def __init__(self, donorCount, availableBlood, pendingRequests, bloodInventoryMap):

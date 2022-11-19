@@ -64,7 +64,7 @@
             <!-- Search bar -->
             <form method="GET" target="_self">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" name="q" placeholder="Search by ID/NRIC"
+                    <input type="text" class="form-control" name="q" placeholder="Search by ID/NRIC/Branch"
                         aria-label="Donation search input" value="{{ request.args.get('q', '') }}">
                     <button class="btn btn-danger" type="submit"><i class="bi bi-search me-2"></i>Search</button>
                 </div>
@@ -76,6 +76,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Donor NRIC</th>
+                        <th>Blood Type</th>
                         <th>Quantity</th>
                         <th>Date and Time</th>
                         <th>Branch</th>
@@ -96,6 +97,7 @@
         <tr>
             <td>${d.id.toString().substring(0, 5)}</td>
             <td>${d.nric}</td>
+            <td>${d.bloodType}</td>
             <td>${d.quantity} (ml)</td>
             <td>${printDateTime(parseDateTimeAsLocal(d.date))}</td>
             <td>${d.branchName}</td>
@@ -133,7 +135,7 @@
                 var url = new URL(window.location.href);
                 var searchVal = url.searchParams.get('q'); // Search value
                 if (searchVal) {
-                    donations = donations.filter(d => d.nric.includes(searchVal) || d.id.toString().includes(searchVal));
+                    donations = donations.filter(d => d.nric.includes(searchVal) || d.id.toString().includes(searchVal) || d.branchName.includes(searchVal));
                 }
 
                 donations.forEach(d => $('#donations').append(donationTemplate(d)));

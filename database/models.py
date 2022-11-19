@@ -61,7 +61,7 @@ class Donor:
         }
 
 class BloodDonation:
-    def __init__(self, id, nric, quantity, date, branchId, recordedBy, usedBy, branchName = None, staffUsername = None):
+    def __init__(self, id, nric, quantity, date, branchId, recordedBy, usedBy, branchName = None, staffUsername = None, bloodType = None):
         self.id = id
         self.nric = nric
         self.quantity = quantity
@@ -72,6 +72,7 @@ class BloodDonation:
 
         self.branchName = branchName
         self.staffUsername = staffUsername
+        self.bloodType = bloodType
 
     def toTuple(self):
         return (self.id, self.nric, self.quantity, self.date, self.branchId, self.recordedBy)
@@ -87,7 +88,8 @@ class BloodDonation:
         usedBy = data.get('usedBy')
         branchName = data.get('branchName')
         staffUsername = data.get('staffUsername')
-        return BloodDonation(id, nric, quantity, date, branchId, recordedBy, usedBy, branchName, staffUsername)
+        bloodType = data.get('bloodType')
+        return BloodDonation(id, nric, quantity, date, branchId, recordedBy, usedBy, branchName, staffUsername, bloodType)
 
     def serialize(self):
         return {
@@ -100,6 +102,7 @@ class BloodDonation:
             'usedBy': self.usedBy,
             'branchName': self.branchName,
             'staffUsername': self.staffUsername,
+            'bloodType': self.bloodType
         }
 
 class BloodRequest:

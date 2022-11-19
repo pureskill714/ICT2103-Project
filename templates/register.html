@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Blood Bank: Register</title>
+
+<style>
+    html,
+    body {
+        height: 100%;
+    }
+
+    body {
+        display: flex;
+        align-items: center;
+        background-color: #f5f5f5;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex flex-row justify-content-evenly align-items-center mb-3">
+                    <img src="static/img/icons8-drop-of-blood-100.png" alt="icon" width="50px">
+                    <h4 class="d-inline mb-0">Account Registration</h4>
+                </div>
+
+                <form method="POST" id="register-form">
+                    <div class="col-sm-12 mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username"
+                            placeholder="Enter your username" required>
+                    </div>
+
+                    <div class="col-sm-12 mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password"
+                            placeholder="Enter your password" required>
+                    </div>
+
+                    <div class="col-sm-12 mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" name="name"
+                            placeholder="Enter your name" required>
+                    </div>
+
+                    <div class="col-sm-12 mb-3">
+                        <label for="branchId" class="form-label">Donation Branch</label>
+                        <select class="form-select" name="branchId" required>
+                            <option value="">Choose branch...</option>
+                            {% for branch in branches %}
+                            <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-sm-12 mb-3">
+                        <label for="role" class="form-label">Account Type</label>
+                        <select class="form-select" name="role" required>
+                            <option value="">Choose account type...</option>
+                            <option value="role.staff.bloodbank">Blood Bank Staff</option>
+                            <option value="role.staff.healthcare">Healthcare Staff</option>
+                        </select>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <button class="btn btn-danger w-100 fw-bold" type="submit">REGISTER</button>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-secondary w-100" type="button" onclick="location.href='/login'">Back to Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div>
+    </div>
+    {% endblock %}
+
+    {% block bodyend %}
+    <script>
+        $(document).ready(() => {
+            $('#register-form').submit((e) => {
+                e.preventDefault();
+
+                $.post('/register', $(e.target).serialize(), (res) => {
+                    if (res.success) {
+                        window.location.href = "/"; // Logged in, redirect to dashboard
+                    }
+                });
+            });
+        });
+    </script>
+    {% endblock %}

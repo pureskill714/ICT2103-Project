@@ -26,7 +26,10 @@ class FirebaseBackend:
     @property
     def bloodrequest_ref(self):
         return self.db.collection('bloodrequest')
-    
+
+    @property
+    def branches_ref(self):
+        return self.db.collection('branches')
 
     def login(self, username, password):
         '''User authentication. Return the user if successful or None'''
@@ -36,10 +39,18 @@ class FirebaseBackend:
             return User.fromDict(doc)
         return None
 
+    def register(self, user: User):
+        '''User registration. Return the user if successful or None'''
+        self.users_ref.add(user.serialize())
+        return self.login(user.username, user.password)
+
     def getUserById(self, id):
         # The document uid can be used as the user ID
-        userDocs = self.users_ref.document(id).get()
-        return User.fromDict(userDocs.to_dict())
+        userDoc = self.users_ref.where('id', '==', int(id)).get()
+        if len(userDoc) == 1:
+            doc = userDoc[0].to_dict()
+            return User.fromDict(doc)
+        return None
 
     def getAllDonors(self):
         '''Query list of all donors''' 
@@ -57,23 +68,9 @@ class FirebaseBackend:
             donorDict = donorsDocs[0].to_dict()
             return Donor.fromDict(donorDict)
         return None
-   
-    # def getDonorDonations(self, nric: str):
-    #     '''Query one donor's donation records'''
-    #     donorDocs = self.donors_ref.where('nric', '==', nric)
-    #     donationDocs = donorDocs.collection(u'blooddonations').get()
-    #     donationDict = donationDocs[0].to_dict()
-    #     return Donor.fromDict(donationDict)
     
     def insertDonor(self, donor: Donor):
-        data = {
-            'nric':donor.nric,
-            'name':donor.name,
-            'dateOfBirth': donor.dateOfBirth,
-            'contactNo':donor.contactNo,
-            'bloodType':donor.bloodType,
-            'registrationDate':donor.registrationDate} 
-        self.donors_ref.add(data)
+        self.donors_ref.add(donor.serialize())
            
     def updateDonor(self, donor: Donor):
         #get donor id
@@ -101,15 +98,15 @@ class FirebaseBackend:
         for doc in donationDocs:
             donationDict = doc.to_dict()
             donationDict["id"] = doc.id
-            #Retrieve matching branch name
-            branchDoc = self.db.collection_group(u'branch').where('branchId', '==' , int(donationDict['branchId'])).get()
-            for docs in branchDoc:
-                branchDict = docs.to_dict()
-                donationDict["branchName"] = branchDict["name"]
-            #Retrieve matching branch username 
-            userDoc = self.users_ref.document(str(donationDict["recordedBy"])).get()
-            userDict = userDoc.to_dict()
-            donationDict["staffUsername"] = userDict["username"]
+            # Retrieve matching blood type
+            donorDoc = doc.reference.parent.parent.get()
+            donationDict["bloodType"] = donorDoc.to_dict()["bloodType"]
+            # Retrieve matching branch name
+            branchDoc = self.branches_ref.document(donationDict['branchId']).get()
+            donationDict["branchName"] = branchDoc.to_dict()["name"]
+            # Retrieve matching branch username 
+            userDoc = self.users_ref.where('id', '==', int(donationDict["recordedBy"])).get()
+            donationDict["staffUsername"] = userDoc[0].to_dict()["username"]
             donationList.append(BloodDonation.fromDict(donationDict))
         return donationList
 
@@ -229,19 +226,13 @@ class FirebaseBackend:
         self.bloodrequest_ref.document(requestId).update({'status':'Delivered','fulfilled':1})
     
     def getAllBranches(self):
-        branchList = []
-        branchDocs = self.db.collection_group(u'branch').get()
+        branchDocs = self.db.collection_group(u'branches').get()
+        branches = []
         for doc in branchDocs:
-            branchDict = doc.to_dict()
-            branchDict["id"] = doc.id
-            branchList.append(branchDict)
-        return branchList
-
-    def getBloodTypeId(self, bloodType):
-        btDocs = self.bloodtypes_ref.where('type', '==', bloodType).get()
-        btDict = btDocs[0].to_dict()
-        btDict['id'] = btDocs[0].id
-        return btDict['id'] if btDict is not None else None
+            data = doc.to_dict()
+            data['id'] = doc.id
+            branches.append(Branch.fromDict(data))
+        return branches
       
     def getDashboardStats(self, branchId):
         donorDocs = self.donors_ref.get()

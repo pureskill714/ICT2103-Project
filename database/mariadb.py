@@ -67,6 +67,16 @@ class MariaDBBackend:
             return None
         return User(*res)
 
+    def register(self, user: User):
+        '''User registration. Return the user if successful or None'''
+        roleId = self.getRoleIdByName(user.role)
+        self._cursor.execute(f'''
+            INSERT INTO {TABLE_USER} (username, password, name, branchId, roleId)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (user.username, user.password, user.name, user.branchId, roleId))
+        self.commit()
+        return self.login(user.username, user.password)
+
     def getAllDonors(self):
         '''Query list of all donors'''
         statement = f'''
@@ -232,6 +242,15 @@ class MariaDBBackend:
         '''Query list of all blood bank branches'''
         self._cursor.execute(f'SELECT id, name, address, postalCode FROM {TABLE_BRANCH}')
         return [Branch(*br) for br in self._cursor.fetchall()]
+
+    def getRoleIdByName(self, id):
+        '''Query role id by its name'''
+        statement = f'''
+            SELECT id FROM {TABLE_ROLE}
+            WHERE name=?
+        '''
+        self._cursor.execute(statement, (id,))
+        return self._cursor.fetchone()[0]
 
     def getBloodTypeId(self, bloodType):
         '''Query the id of a blood type (e.g. A+)'''

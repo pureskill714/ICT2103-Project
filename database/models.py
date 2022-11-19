@@ -14,13 +14,23 @@ class User(UserMixin):
 
     @staticmethod
     def fromDict(data: dict):
-        id = data.get('id')
+        id = data.get('id', None)
         username = data.get('username')
         password = data.get('password')
         name = data.get('name')
         branchId = data.get('branchId')
         role = data.get('role')
         return User(id, username, password, name, branchId, role)
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'password': self.password,
+            'name': self.name,
+            'branchId': self.branchId,
+            'role': self.role,
+        }
 
 class Donor:
     def __init__(self, nric, name, dateOfBirth, contactNo, bloodType, registrationDate):
@@ -34,11 +44,6 @@ class Donor:
     def toTuple(self, bloodTypeId):
         '''Converts to relational DB format'''
         return (self.nric, self.name, self.dateOfBirth, self.contactNo, bloodTypeId, self.registrationDate)
-
-    @staticmethod
-    def fromTuple(data):
-        '''Converts from relational DB format'''
-        return Donor(*data) # Unpack tuple
 
     @staticmethod
     def fromDict(data: dict):
@@ -155,8 +160,14 @@ class Branch:
         self.address = address
         self.postalCode = postalCode
 
-    def toTuple(self):
-        return (self.id, self.name, self.address, self.postalCode)
+    @staticmethod
+    def fromDict(data: dict):
+        return Branch(
+            data.get('id'), 
+            data.get('name'), 
+            data.get('address'),
+            data.get('postalCode'),
+        )
 
 class DashboardData:
     def __init__(self, donorCount, availableBlood, pendingRequests, bloodInventoryMap):

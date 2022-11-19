@@ -10,7 +10,7 @@ from wtforms.validators import InputRequired, Length
 
 from database.firebase import FirebaseBackend
 from database.mariadb import MariaDBBackend
-from database.models import BloodDonation, BloodRequest, DashboardData, Donor
+from database.models import BloodDonation, BloodRequest, DashboardData, Donor, User
 
 # Setup flask
 app = Flask(__name__) # Create an instance of the flask app and put in variable app
@@ -64,6 +64,28 @@ def login():
             flash("Username or password incorrect.")
 
     return render_template('login.html', form=form)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect('/')
+
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        name = request.form.get('name')
+        branchId = request.form.get('branchId')
+        role = request.form.get('role')
+        newUser = User(None, username, password, name, branchId, role)
+        user = db.register(newUser)
+        if user is not None:
+            login_user(user)
+            return jsonify(success=True)
+        else:
+            return redirect(success=False)
+
+    branches = db.getAllBranches()
+    return render_template('register.html', branches=branches)
 
 @app.route('/donors', methods= ['GET', 'POST'])
 @login_required

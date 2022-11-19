@@ -71,7 +71,7 @@
                 </div>
                 <div class="modal-footer justify-content-between">
                     <div>
-                        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Reject</button>
+                        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
                     </div>
                     <div class="align-self-end">
                         <button type="submit" class="btn btn-danger" id="request-modal-fulfill-btn">Fulfill</button>
@@ -119,11 +119,6 @@
                 <a class="btn btn-danger manage-request-btn" data-request-id="${request.id}">Manage</a>
             </div>`;
 
-        const fulfillmentTemplate = () => `
-            <div class="d-flex justify-content-end gap-2">
-                
-            </div>`;
-
         const requestTemplate = (request) => $(`
             <div class="col">
                 <div class="card mb-1 request-card">
@@ -144,7 +139,7 @@
                                     <br />
                                     Address: ${request.address}
                                 </p>
-                                ${!request.fulfilled ? manageBtnTemplate(request) : fulfillmentTemplate(request)}
+                                ${!request.fulfilled ? manageBtnTemplate(request) : ''}
                             </div>
                         </div>
                     </div>

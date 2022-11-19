@@ -36,13 +36,14 @@ CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`Donor` (
   `bloodTypeId` INT UNSIGNED NOT NULL,
   `registrationDate` DATETIME NOT NULL DEFAULT CURRENT_DATE(),
   PRIMARY KEY (`nric`),
-  INDEX `IDX_Donor_bloodTypeId` (`bloodTypeId` ASC) VISIBLE,
   CONSTRAINT `fk_Donor_BloodType_id`
     FOREIGN KEY (`bloodTypeId`)
     REFERENCES `bloodmanagementsystem`.`BloodType` (`id`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
+
+CREATE INDEX `IDX_Donor_bloodTypeId` ON `bloodmanagementsystem`.`Donor` (`bloodTypeId` ASC) VISIBLE;
 
 
 -- -----------------------------------------------------
@@ -72,15 +73,12 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`User` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `username` VARCHAR(45) NOT NULL,
+  `username` VARCHAR(50) NOT NULL,
   `password` VARCHAR(64) NOT NULL,
   `name` VARCHAR(50) NOT NULL,
   `branchId` INT UNSIGNED NULL,
   `roleId` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `IDX_User_branchId` (`branchId` ASC) VISIBLE,
-  INDEX `IDX_User_roleId` (`roleId` ASC) VISIBLE,
-  INDEX `IDX_User_username_password` (`username` ASC, `password` ASC) VISIBLE,
   CONSTRAINT `FK_User_Branch_id`
     FOREIGN KEY (`branchId`)
     REFERENCES `bloodmanagementsystem`.`Branch` (`id`)
@@ -92,6 +90,12 @@ CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`User` (
     ON DELETE RESTRICT
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
+
+CREATE INDEX `IDX_User_branchId` ON `bloodmanagementsystem`.`User` (`branchId` ASC) VISIBLE;
+
+CREATE INDEX `IDX_User_roleId` ON `bloodmanagementsystem`.`User` (`roleId` ASC) VISIBLE;
+
+CREATE INDEX `IDX_User_username_password` ON `bloodmanagementsystem`.`User` (`username` ASC, `password` ASC) VISIBLE;
 
 
 -- -----------------------------------------------------
@@ -107,9 +111,6 @@ CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`BloodRequest` (
   `status` VARCHAR(100) NOT NULL,
   `fulfilled` TINYINT NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
-  INDEX `IDX_BloodRequest_bloodTypeId` (`bloodTypeId` ASC) VISIBLE,
-  INDEX `IDX_BloodRequest_requesterId` (`requesterId` ASC) VISIBLE,
-  INDEX `IDX_BloodRequest_fulfilled` (`fulfilled` ASC) VISIBLE,
   CONSTRAINT `FK_BloodRequest_BloodType_id`
     FOREIGN KEY (`bloodTypeId`)
     REFERENCES `bloodmanagementsystem`.`BloodType` (`id`)
@@ -121,6 +122,12 @@ CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`BloodRequest` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
+
+CREATE INDEX `IDX_BloodRequest_bloodTypeId` ON `bloodmanagementsystem`.`BloodRequest` (`bloodTypeId` ASC) VISIBLE;
+
+CREATE INDEX `IDX_BloodRequest_requesterId` ON `bloodmanagementsystem`.`BloodRequest` (`requesterId` ASC) VISIBLE;
+
+CREATE INDEX `IDX_BloodRequest_fulfilled` ON `bloodmanagementsystem`.`BloodRequest` (`fulfilled` ASC) VISIBLE;
 
 
 -- -----------------------------------------------------
@@ -135,10 +142,6 @@ CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`BloodDonation` (
   `recordedBy` INT UNSIGNED NULL,
   `usedBy` INT UNSIGNED NULL,
   PRIMARY KEY (`id`),
-  INDEX `IDX_BloodDonation_nric` (`nric` ASC) VISIBLE,
-  INDEX `IDX_BloodDonation_branchId` (`branchId` ASC) VISIBLE,
-  INDEX `IDX_BloodDonation_recordedBy` (`recordedBy` ASC) VISIBLE,
-  INDEX `IDX_BloodDonation_usedBy` (`usedBy` ASC) VISIBLE,
   CONSTRAINT `FK_BloodDonation_Donor_nric`
     FOREIGN KEY (`nric`)
     REFERENCES `bloodmanagementsystem`.`Donor` (`nric`)
@@ -152,7 +155,7 @@ CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`BloodDonation` (
   CONSTRAINT `FK_BloodDonation_User_id`
     FOREIGN KEY (`recordedBy`)
     REFERENCES `bloodmanagementsystem`.`User` (`id`)
-    ON DELETE CASCADE
+    ON DELETE SET NULL
     ON UPDATE CASCADE,
   CONSTRAINT `FK_BloodDonation_BloodRequest_id`
     FOREIGN KEY (`usedBy`)
@@ -160,6 +163,14 @@ CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`BloodDonation` (
     ON DELETE RESTRICT
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
+
+CREATE INDEX `IDX_BloodDonation_nric` ON `bloodmanagementsystem`.`BloodDonation` (`nric` ASC) VISIBLE;
+
+CREATE INDEX `IDX_BloodDonation_branchId` ON `bloodmanagementsystem`.`BloodDonation` (`branchId` ASC) VISIBLE;
+
+CREATE INDEX `IDX_BloodDonation_recordedBy` ON `bloodmanagementsystem`.`BloodDonation` (`recordedBy` ASC) VISIBLE;
+
+CREATE INDEX `IDX_BloodDonation_usedBy` ON `bloodmanagementsystem`.`BloodDonation` (`usedBy` ASC) VISIBLE;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

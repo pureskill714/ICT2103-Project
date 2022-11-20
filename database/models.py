@@ -59,7 +59,7 @@ class Donor:
         return {
             'nric': self.nric,
             'name': self.name,
-            'dateOfBirth': self.dateOfBirth.isoformat(),
+            'dateOfBirth': self.dateOfBirth,
             'contactNo': self.contactNo,
             'bloodType': self.bloodType,
             'registrationDate': self.registrationDate,

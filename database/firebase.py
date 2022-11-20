@@ -138,14 +138,13 @@ class FirebaseBackend:
         for doc in donationDocs:
             donationDict = doc.to_dict()
             donationDict["id"] = doc.id
-            branchDoc = self.db.collection_group(u'branch').where('branchId', '==' , int(donationDict['branchId'])).get()
+            branchDoc = self.branches_ref.where('branchId', '==' , int(donationDict['branchId'])).get()
             for docs in branchDoc:
                 branchDict = docs.to_dict()
                 donationDict["branchName"] = branchDict["name"]
-            #Retrieve matching branch username 
-            userDoc = self.users_ref.document(str(donationDict["recordedBy"])).get()
-            userDict = userDoc.to_dict()
-            donationDict["staffUsername"] = userDict["username"]
+            # Retrieve matching branch username 
+            userDoc = self.users_ref.where('id', '==', int(donationDict["recordedBy"])).get()
+            donationDict["staffUsername"] = userDoc[0].to_dict()["username"]
             #filter by bloodtype
             parentRef = doc.reference.parent.parent.get()
             parentDict = parentRef.to_dict()
@@ -226,7 +225,7 @@ class FirebaseBackend:
         self.bloodrequest_ref.document(requestId).update({'status':'Delivered','fulfilled':1})
     
     def getAllBranches(self):
-        branchDocs = self.db.collection_group(u'branches').get()
+        branchDocs = self.branches_ref.get()
         branches = []
         for doc in branchDocs:
             data = doc.to_dict()

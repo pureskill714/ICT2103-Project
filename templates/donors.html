@@ -202,7 +202,7 @@
         </div>
     </div>`);
 
-    function populateDonorList(finish) {
+    function populateDonorList() {
 
         $.ajax({
             url: '/query?type=donor&key=all', success: (res) => {
@@ -217,9 +217,17 @@
                 }
                 donors.forEach(d => $('#donors').append(donorCardTemplate(d)));
 
-                if (finish) {
-                    finish();
-                }
+                // Populate the edit modal when edit is clicked
+                $('.edit-donor-btn').click(editButtonHandler);
+
+                // Add donor form submit handler
+                $('#add-donor-form').submit(addDonorHandler);
+
+                // Edit donor form submit button
+                $('#edit-donor-form').submit(editDonorHandler);
+
+                // Delete donor button
+                $('#delete-donor-btn').click(deleteDonorHandler);
             }
         })
     }
@@ -271,12 +279,7 @@
                 if (res.success) {
                     $('#edit-donor-modal').modal('hide');
 
-                    $('.donor-card').each((i, elem) => {
-                        if ($(elem).find('.donor-card-nric').text() === res.data.nric) {
-                            $(elem).replaceWith(donorCardTemplate(res.data));
-                            return false; // Break the loop
-                        }
-                    });
+                    populateDonorList();
 
                     console.log('Edit donor success', res);
                 }
@@ -303,19 +306,7 @@
     }
 
     $(document).ready(() => {
-        populateDonorList(() => {
-            // Populate the edit modal when edit is clicked
-            $('.edit-donor-btn').click(editButtonHandler);
-
-            // Add donor form submit handler
-            $('#add-donor-form').submit(addDonorHandler);
-
-            // Edit donor form submit button
-            $('#edit-donor-form').submit(editDonorHandler);
-
-            // Delete donor button
-            $('#delete-donor-btn').click(deleteDonorHandler);
-        });
+        populateDonorList();
     });
 </script>
 {% endblock %}

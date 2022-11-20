@@ -109,18 +109,14 @@
 
         $.post('/donations?action=create', $(e.target).serialize(), (res) => {
             if (res.success) {
-                $.ajax({
-                    url: `/query?type=donation&key=id&val=${res.data.id}`, success: (res) => {
-                        // Insert newly added donation as the first item.
-                        donationTemplate(res.data).insertBefore($('#donations tr').first());
+                // Refresh donation list
+                populateDonationList();
 
-                        // Reset and collapse form
-                        $(e.target).trigger('reset');
-                        $('#add-donation-collapse').collapse('hide');
+                // Reset and collapse form
+                $(e.target).trigger('reset');
+                $('#add-donation-collapse').collapse('hide');
 
-                        console.log('Add donation success', res);
-                    }
-                });
+                console.log('Add donation success', res);
             }
         });
     }

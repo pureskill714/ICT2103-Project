@@ -260,17 +260,23 @@ class MariaDBBackend:
 
     def getDashboardStats(self, branchId):
         '''Query data to show on the dashboard
-        Returns: DashboardData(donor count, available blood, pending requests, blood inventory)
+        Returns: DashboardData(donor count, available blood, pending requests, donations , blood inventory)
         '''
         self._cursor.execute(f'''
-            SELECT d.donorCount, b.availableBlood, r.pendingCount FROM
-                (SELECT COUNT(nric) AS donorCount FROM {TABLE_DONOR}) as d,
-                (SELECT SUM(quantity) AS availableBlood FROM {TABLE_DONATION} WHERE usedBy IS NULL) as b,
-                (SELECT COUNT(id) AS pendingCount FROM {TABLE_REQUEST} WHERE fulfilled=0) as r;
+            SELECT d.donorCount, bd.availableBlood, req.pendingCount, bd2.donationPastWeek, bd2.bloodQtyPastWeek FROM
+            	(SELECT COUNT(nric) AS donorCount FROM Donor) AS d,
+            	(SELECT SUM(quantity) AS availableBlood FROM BloodDonation WHERE usedBy IS NULL) AS bd,
+            	(SELECT COUNT(id) AS pendingCount FROM BloodRequest WHERE fulfilled=0) AS req,
+            	(SELECT COUNT(d2Stat.id) AS donationPastWeek, COALESCE(SUM(d2Stat.quantity),0) AS bloodQtyPastWeek FROM (
+            		SELECT bd.id, bd.quantity FROM BloodDonation bd
+            			WHERE date BETWEEN DATE(DATE_ADD(NOW(), INTERVAL(-WEEKDAY(NOW())) DAY))
+            				AND DATE(DATE_ADD(NOW(), INTERVAL(6-WEEKDAY(NOW())) DAY))
+            		) AS d2Stat
+            	) as bd2;
         ''')
-        donorCount, availableBlood, pendingCount = self._cursor.fetchone()
+        donorCount, availableBlood, pendingCount, donationsThisWeek, bloodQtyThisWeek = self._cursor.fetchone()
         inventory = self.getBloodInventoryByBranchId(branchId)
-        return DashboardData(donorCount, availableBlood, pendingCount, inventory.storage)
+        return DashboardData(donorCount, availableBlood, pendingCount, donationsThisWeek, bloodQtyThisWeek, inventory.storage)
 
     def getBloodInventoryByBranchId(self, branchId):
         '''Query blood inventory data

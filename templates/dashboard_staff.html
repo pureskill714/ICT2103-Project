@@ -14,8 +14,8 @@
             <h3>Dashboard</h3>
             <div class="row mb-3">
                 <div class="col">
-                    <div class="card text-bg-info">
-                        <div class="card-header">Total Donors</div>
+                    <div class="card text-bg-primary">
+                        <div class="card-header">Registered Donors</div>
                         <div class="card-body">
                             <h5 class="card-title">{{ data.donorCount }}</h5>
                             <p class="card-text"></p>
@@ -36,6 +36,27 @@
                         <div class="card-header">Requests (Pending)</div>
                         <div class="card-body">
                             <h5 class="card-title">{{ data.pendingRequests }}</h5>
+                            <p class="card-text"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col">
+                    <div class="card text-bg-secondary">
+                        <div class="card-header">Donations (Current Week)</div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ data.donationsThisWeek }}</h5>
+                            <p class="card-text"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card text-bg-secondary">
+                        <div class="card-header">Blood Donated (Current Week)</div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ data.bloodQtyThisWeek }} ml</h5>
                             <p class="card-text"></p>
                         </div>
                     </div>

@@ -70,7 +70,9 @@ class FirebaseBackend:
         return None
     
     def insertDonor(self, donor: Donor):
-        self.donors_ref.add(donor.serialize())
+        data = donor.serialize()
+        data['dateOfBirth'] = donor.dateOfBirth # Don't serialize date
+        self.donors_ref.add(data)
            
     def updateDonor(self, donor: Donor):
         #get donor id
@@ -235,17 +237,24 @@ class FirebaseBackend:
       
     def getDashboardStats(self, branchId):
         donorDocs = self.donors_ref.get()
-        requestDocs =self.bloodrequest_ref.where('fulfilled', '==', 0).get()
-        #Get total blood donation quantity
-        bloodQuantityList = []
+        availableBlood = 0
+        pendingRequestDocs =self.bloodrequest_ref.where('fulfilled', '==', 0).get()
+        donationsThisWeek = 0
+        bloodQtyThisWeek = 0
+        
         donationDocs = self.db.collection_group(u'blooddonations').get()
         for doc in donationDocs:
-            donationDict = doc.to_dict()
-            bloodQuantity = int(donationDict["quantity"])
-            bloodQuantityList.append(bloodQuantity)
-            totalQuantity= sum(bloodQuantityList)
+            bloodQty = int(doc.get("quantity"))
+            availableBlood += bloodQty # Calculate total blood available
+            date = doc.get("date")
+            today = datetime.today()
+            if date.isocalendar()[1] == today.isocalendar()[1] and date.year == today.year:
+                # The date is in the current week
+                donationsThisWeek += 1
+                bloodQtyThisWeek += bloodQty
+
         inventory = self.getBloodInventoryByBranchId(branchId)
-        res = DashboardData(len(donorDocs),totalQuantity,len(requestDocs), inventory.storage)
+        res = DashboardData(len(donorDocs), availableBlood, len(pendingRequestDocs), donationsThisWeek, bloodQtyThisWeek, inventory.storage)
         return res
         
     def getBloodInventoryByBranchId(self, branchId):

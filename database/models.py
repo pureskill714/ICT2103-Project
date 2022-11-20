@@ -59,7 +59,7 @@ class Donor:
         return {
             'nric': self.nric,
             'name': self.name,
-            'dateOfBirth': self.dateOfBirth,
+            'dateOfBirth': self.dateOfBirth.isoformat(),
             'contactNo': self.contactNo,
             'bloodType': self.bloodType,
             'registrationDate': self.registrationDate,
@@ -170,10 +170,12 @@ class Branch:
         )
 
 class DashboardData:
-    def __init__(self, donorCount, availableBlood, pendingRequests, bloodInventoryMap):
+    def __init__(self, donorCount, availableBlood, pendingRequests, donationsThisWeek, bloodQtyThisWeek, bloodInventoryMap):
         self.donorCount = donorCount
         self.availableBlood = availableBlood
         self.pendingRequests = pendingRequests
+        self.donationsThisWeek = donationsThisWeek
+        self.bloodQtyThisWeek = bloodQtyThisWeek
         self.bloodInventoryMap = bloodInventoryMap
 
 class BloodInventory:
@@ -193,4 +195,4 @@ class BloodInventory:
             if branchId not in inventories.keys():
                 inventories[branchId] = BloodInventory(branchId)
             inventories[branchId].storage[bloodType] += quantity
-        return list(inventories.values()) # Unpack tuple
+        return list(inventories.values())

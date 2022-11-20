@@ -172,6 +172,8 @@ CREATE INDEX `IDX_BloodDonation_recordedBy` ON `bloodmanagementsystem`.`BloodDon
 
 CREATE INDEX `IDX_BloodDonation_usedBy` ON `bloodmanagementsystem`.`BloodDonation` (`usedBy` ASC) VISIBLE;
 
+CREATE INDEX `IDX_BloodDonation_date` ON `bloodmanagementsystem`.`BloodDonation` (`date` DESC) VISIBLE;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

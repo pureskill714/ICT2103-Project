@@ -133,7 +133,7 @@ class MariaDBBackend:
             SELECT bd.id, bd.nric, bd.quantity, bd.date, bd.branchId, bd.recordedBy, bd.usedBy, b.name, u.username, bt.type
                 FROM {TABLE_DONATION} bd
             INNER JOIN {TABLE_BRANCH} b ON bd.branchId=b.id
-            INNER JOIN {TABLE_USER} u ON bd.recordedBy=u.id
+            LEFT JOIN {TABLE_USER} u ON bd.recordedBy=u.id
             INNER JOIN {TABLE_DONOR} d ON bd.nric=d.nric
             INNER JOIN {TABLE_BLOODTYPE} bt ON d.bloodTypeId=bt.id
             ORDER BY bd.date DESC, bd.id

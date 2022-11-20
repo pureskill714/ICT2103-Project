@@ -180,11 +180,8 @@ class MariaDBBackend:
         '''
         data = donation.toTuple()
         assert(len(data) == 6)
-        try:
-            self._cursor.execute(statement, data)
-            return self._cursor.lastrowid
-        except mariadb.Error as e:
-            print(f"Error inserting new donation: {e}")
+        self._cursor.execute(statement, data)
+        return self._cursor.lastrowid
 
     def getAllRequests(self):
         '''Query list of all blood requests'''
@@ -243,13 +240,13 @@ class MariaDBBackend:
         self._cursor.execute(f'SELECT id, name, address, postalCode FROM {TABLE_BRANCH}')
         return [Branch(*br) for br in self._cursor.fetchall()]
 
-    def getRoleIdByName(self, id):
+    def getRoleIdByName(self, roleName):
         '''Query role id by its name'''
         statement = f'''
             SELECT id FROM {TABLE_ROLE}
             WHERE name=?
         '''
-        self._cursor.execute(statement, (id,))
+        self._cursor.execute(statement, (roleName,))
         return self._cursor.fetchone()[0]
 
     def getBloodTypeId(self, bloodType):
@@ -263,16 +260,16 @@ class MariaDBBackend:
         Returns: DashboardData(donor count, available blood, pending requests, donations , blood inventory)
         '''
         self._cursor.execute(f'''
-            SELECT d.donorCount, bd.availableBlood, req.pendingCount, bd2.donationPastWeek, bd2.bloodQtyPastWeek FROM
-            	(SELECT COUNT(nric) AS donorCount FROM Donor) AS d,
-            	(SELECT SUM(quantity) AS availableBlood FROM BloodDonation WHERE usedBy IS NULL) AS bd,
-            	(SELECT COUNT(id) AS pendingCount FROM BloodRequest WHERE fulfilled=0) AS req,
-            	(SELECT COUNT(d2Stat.id) AS donationPastWeek, COALESCE(SUM(d2Stat.quantity),0) AS bloodQtyPastWeek FROM (
-            		SELECT bd.id, bd.quantity FROM BloodDonation bd
-            			WHERE date BETWEEN DATE(DATE_ADD(NOW(), INTERVAL(-WEEKDAY(NOW())) DAY))
-            				AND DATE(DATE_ADD(NOW(), INTERVAL(6-WEEKDAY(NOW())) DAY))
+            SELECT d.donorCount, bd.availableBlood, req.pendingCount, bd2.donationsThisWeek, bd2.bloodQtyThisWeek FROM
+            	(SELECT COUNT(nric) AS donorCount FROM {TABLE_DONOR}) AS d,
+            	(SELECT SUM(quantity) AS availableBlood FROM {TABLE_DONATION} WHERE usedBy IS NULL) AS bd,
+            	(SELECT COUNT(id) AS pendingCount FROM {TABLE_REQUEST} WHERE fulfilled=0) AS req,
+            	(SELECT COUNT(d2Stat.id) AS donationsThisWeek, COALESCE(SUM(d2Stat.quantity),0) AS bloodQtyThisWeek FROM (
+            		SELECT bd.id, bd.quantity FROM {TABLE_DONATION} bd
+            			WHERE bd.date BETWEEN DATE(DATE_ADD(NOW(), INTERVAL(-WEEKDAY(NOW())) DAY))
+            				AND DATE(DATE_ADD(NOW(), INTERVAL(7-WEEKDAY(NOW())) DAY))
             		) AS d2Stat
-            	) as bd2;
+            	) AS bd2;
         ''')
         donorCount, availableBlood, pendingCount, donationsThisWeek, bloodQtyThisWeek = self._cursor.fetchone()
         inventory = self.getBloodInventoryByBranchId(branchId)

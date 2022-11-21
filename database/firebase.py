@@ -113,15 +113,6 @@ class FirebaseBackend:
             donationList.sort(key=lambda d: d.date, reverse=True)
         return donationList
 
-    def getDonationById(self, id):
-        # '''Query list of all blood donations'''
-        donationDocs = self.db.collection_group(u'blooddonations').get()
-        for doc in donationDocs:
-            donationDict = doc.to_dict()
-            donationDict["id"] = doc.id
-            if donationDict["id"] == id:  
-                return BloodDonation.fromDict(donationDict)
-
     def getDonationsIdsByRequestId(self, id):
         '''Query all blood donation ids used to fulfill the request with given id.'''
         donationList = []

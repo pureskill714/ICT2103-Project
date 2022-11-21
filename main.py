@@ -220,9 +220,6 @@ def query():
         elif key == 'bloodType':
             donations = db.getAvailableDonationsByBloodType(val)
             return jsonify(success=True, data=[d.serialize() for d in donations])
-        elif key == 'id':
-            donation = db.getDonationById(val)
-            return jsonify(success=True, data=donation.serialize())
         elif key == 'usedBy':
             donationIds = db.getDonationsIdsByRequestId(val)
             return jsonify(success=True, data=donationIds)

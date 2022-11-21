@@ -141,18 +141,6 @@ class MariaDBBackend:
         self._cursor.execute(statement)
         return [BloodDonation(*bd) for bd in self._cursor.fetchall()]
 
-    def getDonationById(self, id):
-        '''Query one blood donation by id'''
-        statement = f'''
-            SELECT bd.id, bd.nric, bd.quantity, bd.date, bd.branchId, bd.recordedBy, bd.usedBy, b.name, u.username
-                FROM {TABLE_DONATION} bd
-            INNER JOIN {TABLE_BRANCH} b ON bd.branchId=b.id
-            INNER JOIN {TABLE_USER} u ON bd.recordedBy=u.id
-            WHERE bd.id=?
-        '''
-        self._cursor.execute(statement, (id,))
-        return BloodDonation(*self._cursor.fetchone())
-
     def getDonationsIdsByRequestId(self, id):
         '''Query all blood donation ids used to fulfill the request with given id.'''
         statement = f'''

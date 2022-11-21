@@ -83,6 +83,7 @@ class MariaDBBackend:
             SELECT d.nric, d.name, d.dateOfBirth, d.contactNo, bt.type, d.registrationDate FROM {TABLE_DONOR} d
             INNER JOIN {TABLE_BLOODTYPE} bt ON d.BloodTypeId=bt.id
             ORDER BY d.nric
+            LIMIT 1000
         '''
         self._cursor.execute(statement)
         return [Donor(*d) for d in self._cursor.fetchall()]
@@ -137,6 +138,7 @@ class MariaDBBackend:
             INNER JOIN {TABLE_DONOR} d ON bd.nric=d.nric
             INNER JOIN {TABLE_BLOODTYPE} bt ON d.bloodTypeId=bt.id
             ORDER BY bd.date DESC, bd.id
+            LIMIT 1000
         '''
         self._cursor.execute(statement)
         return [BloodDonation(*bd) for bd in self._cursor.fetchall()]
@@ -178,6 +180,7 @@ class MariaDBBackend:
                 br.status, br.fulfilled, u.username FROM {TABLE_REQUEST} br
             INNER JOIN {TABLE_BLOODTYPE} bt ON br.bloodTypeId=bt.id
             INNER JOIN {TABLE_USER} u ON br.requesterId=u.id
+            LIMIT 1000
         ''')
         return [BloodRequest(*br) for br in self._cursor.fetchall()]
 

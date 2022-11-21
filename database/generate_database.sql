@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `bloodmanagementsystem`.`Donor` (
   `dateOfBirth` DATE NOT NULL,
   `contactNo` VARCHAR(20) NOT NULL,
   `bloodTypeId` INT UNSIGNED NOT NULL,
-  `registrationDate` DATETIME NOT NULL DEFAULT CURRENT_DATE(),
+  `registrationDate` DATETIME NOT NULL,
   PRIMARY KEY (`nric`),
   CONSTRAINT `fk_Donor_BloodType_id`
     FOREIGN KEY (`bloodTypeId`)

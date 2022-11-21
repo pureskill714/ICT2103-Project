@@ -3,7 +3,7 @@ import google.cloud.firestore_v1 as gcloudfirestore
 from firebase_admin import credentials, firestore, initialize_app
 
 from database.models import BloodDonation, BloodInventory, BloodRequest, Branch, DashboardData, Donor, User
-from datetime import datetime
+from datetime import datetime, timezone
 
 class FirebaseBackend:
     def __init__(self):
@@ -102,13 +102,13 @@ class FirebaseBackend:
             donationDict["id"] = doc.id
             # Retrieve matching blood type
             donorDoc = doc.reference.parent.parent.get()
-            donationDict["bloodType"] = donorDoc.to_dict()["bloodType"]
+            donationDict["bloodType"] = donorDoc.get("bloodType")
             # Retrieve matching branch name
             branchDoc = self.branches_ref.document(donationDict['branchId']).get()
-            donationDict["branchName"] = branchDoc.to_dict()["name"]
+            donationDict["branchName"] = branchDoc.get("name")
             # Retrieve matching branch username 
             userDoc = self.users_ref.where('id', '==', int(donationDict["recordedBy"])).get()
-            donationDict["staffUsername"] = userDoc[0].to_dict()["username"]
+            donationDict["staffUsername"] = userDoc[0].get("username")
             donationList.append(BloodDonation.fromDict(donationDict))
             donationList.sort(key=lambda d: d.date, reverse=True)
         return donationList
@@ -156,11 +156,10 @@ class FirebaseBackend:
         return donationList
                 
     def insertDonation(self, donation: BloodDonation):
-        #get donor id
+        donation.date = datetime.utcnow() # Firestore assumes datetime in UTC
+        # Get donor id
         donorDocs = self.donors_ref.where('nric', '==', donation.nric).get()
-        donorDict = donorDocs[0].to_dict()
-        donorDict["id"] = donorDocs[0].id
-        #Insert Query
+        # Insert donation
         data={
             'nric':donation.nric,
             'branchId':donation.branchId,
@@ -168,7 +167,7 @@ class FirebaseBackend:
             'quantity':donation.quantity,
             'recordedBy':donation.recordedBy,
             'usedBy': None} 
-        self.donors_ref.document(donorDict['id']).collection('blooddonations').add(data)
+        self.donors_ref.document(donorDocs[0].id).collection('blooddonations').add(data)
            
     def getAllRequests(self):
         '''Query list of all blood requests'''
@@ -247,9 +246,11 @@ class FirebaseBackend:
         for doc in donationDocs:
             bloodQty = int(doc.get("quantity"))
             availableBlood += bloodQty # Calculate total blood available
-            date = doc.get("date")
+            date = doc.get("date").astimezone(timezone.utc)
+            dateIso = date.isocalendar()
             today = datetime.today()
-            if date.isocalendar()[1] == today.isocalendar()[1] and date.year == today.year:
+            todayIso = today.isocalendar()
+            if dateIso.week == todayIso.week and date.year == today.year:
                 # The date is in the current week
                 donationsThisWeek += 1
                 bloodQtyThisWeek += bloodQty

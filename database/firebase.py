@@ -110,6 +110,7 @@ class FirebaseBackend:
             userDoc = self.users_ref.where('id', '==', int(donationDict["recordedBy"])).get()
             donationDict["staffUsername"] = userDoc[0].to_dict()["username"]
             donationList.append(BloodDonation.fromDict(donationDict))
+            donationList.sort(key=lambda d: d.date, reverse=True)
         return donationList
 
     def getDonationById(self, id):

@@ -132,10 +132,9 @@ class FirebaseBackend:
         for doc in donationDocs:
             donationDict = doc.to_dict()
             donationDict["id"] = doc.id
-            branchDoc = self.branches_ref.where('branchId', '==' , int(donationDict['branchId'])).get()
-            for docs in branchDoc:
-                branchDict = docs.to_dict()
-                donationDict["branchName"] = branchDict["name"]
+            branchDoc = self.branches_ref.document(donationDict['branchId']).get()
+            branchDict = branchDoc.to_dict()
+            donationDict["branchName"] = branchDict["name"]
             # Retrieve matching branch username 
             userDoc = self.users_ref.where('id', '==', int(donationDict["recordedBy"])).get()
             donationDict["staffUsername"] = userDoc[0].to_dict()["username"]

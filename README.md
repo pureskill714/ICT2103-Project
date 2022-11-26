@@ -1,5 +1,9 @@
 ## Blood Donation Management System
 
+### Populate MariaDB
+A SQL script is provided in `database/generate_database.sql`.
+The script will create and populate tables in MariaDB with data needed to use the application. 
+
 ### Running the project
 
 Dependencies to install:

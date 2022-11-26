@@ -201,14 +201,14 @@ COMMIT;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `bloodmanagementsystem`;
-INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('S9990000A', 'Donor A', '1999-01-01', '90000001', 1, '2020-01-01');
-INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('S9991111A', 'Donor B', '1999-06-01', '90000002', 2, '2021-01-01');
-INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('T0000000B', 'Donor C', '2000-01-01', '90000003', 3, '2020-01-01');
-INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('T0001111B', 'Donor D', '2000-06-01', '90000004', 4, '2021-01-01');
-INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('S8880000C', 'Donor E', '1988-01-01', '90000005', 5, '2020-01-01');
-INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('S8881111C', 'Donor F', '1988-06-01', '90000006', 6, '2021-01-01');
-INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('S7770000D', 'Donor G', '1977-01-01', '90000007', 7, '2020-01-01');
-INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('S7771111D', 'Donor H', '1977-06-01', '90000008', 8, '2021-01-01');
+INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('S9990000A', 'Alex Tan', '1999-01-01', '90000001', 1, '2020-01-01');
+INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('S9991111A', 'John Smith', '1999-06-01', '90000002', 2, '2021-01-01');
+INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('T0000000B', 'Snowden Yang', '2000-01-01', '90000003', 3, '2020-01-01');
+INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('T0001111B', 'Kelly Ang', '2000-06-01', '90000004', 4, '2021-01-01');
+INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('S8880000C', 'Cai Xiang', '1988-01-01', '90000005', 5, '2020-01-01');
+INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('S8881111C', 'Tan Ru Xi', '1988-06-01', '90000006', 6, '2021-01-01');
+INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('S7770000D', 'Hong Hong', '1977-01-01', '90000007', 7, '2020-01-01');
+INSERT INTO `bloodmanagementsystem`.`Donor` (`nric`, `name`, `dateOfBirth`, `contactNo`, `bloodTypeId`, `registrationDate`) VALUES ('S7771111D', 'Alicia Lee', '1977-06-01', '90000008', 8, '2021-01-01');
 
 COMMIT;
 
@@ -276,19 +276,19 @@ USE `bloodmanagementsystem`;
 INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (1, 'S9990000A', 350, '2022-01-01', 10001, 1, NULL);
 INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (2, 'S9991111A', 450, '2022-01-01', 10001, 1, NULL);
 INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (3, 'T0000000B', 300, '2022-01-01', 10002, 2, NULL);
-INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (4, 'T0001111B', 350, '2022-01-01', 10002, 2, NULL);
-INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (5, 'S8880000C', 420, '2022-01-01', 10003, 3, NULL);
-INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (6, 'S8881111C', 320, '2022-01-01', 10003, 3, NULL);
-INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (7, 'S7770000D', 450, '2022-01-01', 10004, 4, NULL);
-INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (8, 'S7771111D', 400, '2022-01-01', 10004, 4, NULL);
-INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (9, 'S9990000A', 200, '2022-02-01', 10001, 1, NULL);
-INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (10, 'S9990000A', 150, '2022-02-01', 10001, 1, NULL);
-INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (11, 'S9991111A', 350, '2022-02-01', 10001, 1, NULL);
-INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (12, 'S9991111A', 400, '2022-02-01', 10001, 1, NULL);
-INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (13, 'S7770000D', 380, '2022-02-01', 10001, 1, NULL);
-INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (14, 'S7770000D', 420, '2022-02-01', 10001, 1, NULL);
-INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (15, 'S7771111D', 280, '2022-02-01', 10001, 1, NULL);
-INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (16, 'S7771111D', 300, '2022-02-01', 10001, 1, NULL);
+INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (4, 'T0001111B', 350, '2022-03-20', 10002, 2, NULL);
+INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (5, 'S8880000C', 420, '2022-05-01', 10003, 3, NULL);
+INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (6, 'S8881111C', 320, '2022-05-02', 10003, 3, NULL);
+INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (7, 'S7770000D', 450, '2022-05-03', 10004, 4, NULL);
+INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (8, 'S7771111D', 400, '2022-06-30', 10004, 4, NULL);
+INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (9, 'S9990000A', 200, '2022-06-30', 10001, 1, NULL);
+INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (10, 'S9990000A', 150, '2022-08-10', 10001, 1, NULL);
+INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (11, 'S9991111A', 350, '2022-08-10', 10001, 1, NULL);
+INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (12, 'S9991111A', 400, '2022-08-10', 10001, 1, NULL);
+INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (13, 'S7770000D', 380, '2022-10-05', 10001, 1, NULL);
+INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (14, 'S7770000D', 420, '2022-10-10', 10001, 1, NULL);
+INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (15, 'S7771111D', 280, '2022-11-22', 10001, 1, NULL);
+INSERT INTO `bloodmanagementsystem`.`BloodDonation` (`id`, `nric`, `quantity`, `date`, `branchId`, `recordedBy`, `usedBy`) VALUES (16, 'S7771111D', 300, '2022-11-25', 10001, 1, NULL);
 
 COMMIT;
 

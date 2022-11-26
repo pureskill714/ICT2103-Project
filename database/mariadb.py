@@ -46,7 +46,7 @@ class MariaDBBackend:
         self._connection.commit()
 
     def getUserById(self, id):
-        '''Query user by username'''
+        '''Query user by id'''
         self._cursor.execute(f'''
             SELECT u.id, u.username, u.password, u.name, u.branchId, r.name FROM {TABLE_USER} u
             INNER JOIN {TABLE_ROLE} r ON u.roleId=r.id

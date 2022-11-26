@@ -22,7 +22,9 @@ class MariaDBBackend:
         user = os.getenv('BLOODMGT_MARIADB_USER')
         pwd = os.getenv('BLOODMGT_MARIADB_PASS')
         if user is None or pwd is None:
-            raise ValueError('Please set your MariaDB user/password environment variables.')
+            print("Authentication is needed to connect to MariaDB.")
+            user = input("Enter your MariaDB username: ")
+            pwd = input("Enter your MariaDB password: ")
 
         try:
             conn = mariadb.connect(
@@ -102,6 +104,7 @@ class MariaDBBackend:
         return Donor(*res)
 
     def insertDonor(self, donor: Donor):
+        '''Insert new Donor'''
         bloodTypeId = self.getBloodTypeId(donor.bloodType)
         statement = f'''
             INSERT INTO {TABLE_DONOR} (nric, name, dateOfBirth, contactNo, bloodTypeId, registrationDate)
@@ -115,6 +118,7 @@ class MariaDBBackend:
             print(f"Error inserting new donor: {e}")
 
     def updateDonor(self, donor: Donor):
+        '''Update existing Donor'''
         bloodTypeId = self.getBloodTypeId(donor.bloodType)
         statement = f'''
             UPDATE {TABLE_DONOR}
@@ -210,7 +214,7 @@ class MariaDBBackend:
             print(f"Error inserting new blood request: {e}")
 
     def fulfillRequest(self, requestId: str, donationIds: list[str]):
-        ''''''
+        '''Mark blood request as fulfilled using one or more blood donations'''
         statement = f'''
             UPDATE {TABLE_DONATION}
             SET usedBy=?
@@ -248,7 +252,7 @@ class MariaDBBackend:
 
     def getDashboardStats(self, branchId):
         '''Query data to show on the dashboard
-        Returns: DashboardData(donor count, available blood, pending requests, donations , blood inventory)
+        Returns: DashboardData(donor count, available blood, pending requests, donations, blood inventory)
         '''
         self._cursor.execute(f'''
             SELECT d.donorCount, bd.availableBlood, req.pendingCount, bd2.donationsThisWeek, bd2.bloodQtyThisWeek FROM

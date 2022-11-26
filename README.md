@@ -2,7 +2,21 @@
 
 ### Populate MariaDB
 A SQL script is provided in `database/generate_database.sql`.
-The script will create and populate tables in MariaDB with data needed to use the application. 
+The script will create and populate tables in MariaDB with data needed to use the application.
+
+**Built-in accounts**
+
+Role: Blood Bank Staff
+- user1 (branch 10001)
+- user2 (branch 10002)
+- user3 (branch 10003)
+- user4 (branch 10004)
+
+Role: Healthcare Staff
+- healthcare1
+
+Password for all accounts
+- 1234
 
 ### Running the project
 

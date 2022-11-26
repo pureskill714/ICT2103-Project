@@ -208,7 +208,7 @@
             url: '/query?type=donor&key=all', success: (res) => {
                 let donors = res.data;
                 $('#donors').empty(); // Clear child items
-                
+
                 // Show only those searched, if search value is given
                 var url = new URL(window.location.href);
                 var searchVal = url.searchParams.get('q'); // Search value
@@ -219,15 +219,6 @@
 
                 // Populate the edit modal when edit is clicked
                 $('.edit-donor-btn').click(editButtonHandler);
-
-                // Add donor form submit handler
-                $('#add-donor-form').submit(addDonorHandler);
-
-                // Edit donor form submit button
-                $('#edit-donor-form').submit(editDonorHandler);
-
-                // Delete donor button
-                $('#delete-donor-btn').click(deleteDonorHandler);
             }
         })
     }
@@ -299,6 +290,15 @@
 
     $(document).ready(() => {
         populateDonorList();
+
+        // Add donor form submit handler
+        $('#add-donor-form').submit(addDonorHandler);
+
+        // Edit donor form submit button
+        $('#edit-donor-form').submit(editDonorHandler);
+
+        // Delete donor button
+        $('#delete-donor-btn').click(deleteDonorHandler);
     });
 </script>
 {% endblock %}

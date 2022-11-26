@@ -253,15 +253,7 @@
             if (res.success) {
                 $('#add-donor-status').addClass('d-none'); // Hide the loading spinner
 
-                // Insert new donor as the first card
-                let newDonor = res.data;
-                let first = $('.donor-card').first();
-                let donorCard = donorCardTemplate(newDonor);
-                if (first) {
-                    donorCard.insertBefore(first);
-                } else {
-                    $('#donors').append(donorCard);
-                }
+                populateDonorList();
 
                 // Reset and collapse form
                 $(e.target).trigger('reset');
